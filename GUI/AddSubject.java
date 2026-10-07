@@ -1,11 +1,14 @@
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.function.Consumer;
 import javax.swing.*;
 
 public class AddSubject extends JFrame {
@@ -19,11 +22,34 @@ public class AddSubject extends JFrame {
     JComboBox<String> statusBox = new JComboBox<>(new String[]{"Todo", "In progress", "Complete"});
     LocalDate deadlineDate = null;
 
+    TodoList parent;                       // หน้า To-Do ที่เปิดหน้านี้
+    Consumer<TodoList.Task> onSave;        // ส่งงานใหม่กลับไปให้หน้า To-Do
+
+    // ใช้ตอนรันหน้านี้เดี่ยวๆ เพื่อทดสอบ
     public AddSubject() {
+        this(null, null);
+    }
+
+    public AddSubject(TodoList parent, Consumer<TodoList.Task> onSave) {
+        this.parent = parent;
+        this.onSave = onSave;
+
         setTitle("Add subject");
         setSize(340, 500);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        if (parent == null) {
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
+        } else {
+            // ปิดหน้านี้ (กด X หรือหลัง Save) แล้วให้หน้า To-Do กลับมาแสดง
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    AddSubject.this.parent.setVisible(true);
+                }
+            });
+        }
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -61,15 +87,30 @@ public class AddSubject extends JFrame {
         saveBtn.setFocusPainted(false);
         saveBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         saveBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        saveBtn.addActionListener(e -> JOptionPane.showMessageDialog(this,
-                "Name: " + nameField.getText()
-                + "\nDescription: " + descField.getText()
-                + "\nDeadline: " + deadlineField.getText()
-                + "\nStatus: " + statusBox.getSelectedItem()));
+        saveBtn.addActionListener(e -> save());
 
         panel.add(Box.createVerticalStrut(25));
         panel.add(saveBtn);
         add(panel);
+    }
+
+    void save() {
+        String name = nameField.getText().trim();
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "กรุณากรอกชื่อวิชา");
+            return;
+        }
+        if (deadlineDate == null) {
+            JOptionPane.showMessageDialog(this, "กรุณาเลือก Deadline");
+            return;
+        }
+        // Complete = เสร็จแล้ว, Todo / In progress = ยังไม่เสร็จ
+        boolean done = "Complete".equals(statusBox.getSelectedItem());
+
+        if (onSave != null) {
+            onSave.accept(new TodoList.Task(name, descField.getText().trim(), deadlineDate, done));
+        }
+        dispose();   // ปิดหน้านี้ -> windowClosed จะเปิดหน้า To-Do กลับมา
     }
 
     void openCalendar() {

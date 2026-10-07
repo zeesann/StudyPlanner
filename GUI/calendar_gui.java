@@ -1,6 +1,4 @@
-
-    
-import javax.swing.*;
+ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,9 +7,9 @@ import java.time.format.TextStyle;
 import java.util.*;
 
 /**
- * Study Planner - Java Swing (ไฟล์เดียว ไม่ใช้ XML)
- * คอมไพล์: javac StudyPlanner.java
- * รัน:      java StudyPlanner
+ * Calendar - Java Swing (ไฟล์เดียว ไม่ใช้ XML)
+ * คอมไพล์: javac *.java
+ * รัน:      java Login
  */
 public class  calendar_gui extends JFrame {
 
@@ -81,6 +79,8 @@ public class  calendar_gui extends JFrame {
                 if (JOptionPane.showConfirmDialog(calendar_gui.this, "Sign out?",
                         "Sign out", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     dispose();
+                    TodoList.reset();   // ล้างหน้า To-Do เดิมทิ้ง
+                    new Login().setVisible(true);
                 }
             }
         });
@@ -261,7 +261,11 @@ public class  calendar_gui extends JFrame {
         p.setBorder(new MatteBorder(1, 0, 1, 0, LINE));
         p.setPreferredSize(new Dimension(0, 250));
 
-        p.add(summaryRow("All work", allWork + "  \u2192", PINK, PINK, false));
+        JPanel allRow = summaryRow("All work", allWork + "  \u2192", PINK, PINK, false);
+        allRow.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        allRow.addMouseListener(new MouseAdapter() {
+        public void mouseClicked(MouseEvent e) { TodoList.open(calendar_gui.this); }});
+        p.add(allRow);
         p.add(summaryRow("Done", String.valueOf(done), GREEN, GREEN, true));
         p.add(summaryRow("Not Done", String.valueOf(notDone), RED, RED, true));
         p.add(summaryRow("Due soon", String.valueOf(dueSoon), YELLOW, YELLOW, true));
@@ -293,6 +297,3 @@ public class  calendar_gui extends JFrame {
         SwingUtilities.invokeLater(() -> new calendar_gui().setVisible(true));
     }
 }
-
-
-
