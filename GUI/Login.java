@@ -133,8 +133,8 @@ public class Login extends JFrame {
             JOptionPane.showMessageDialog(this, "กรุณากรอกอีเมลและรหัสผ่าน");
             return;
         }
-        // TODO: ตรวจสอบล็อกอินจริง แล้วเปิดหน้าหลัก
-        JOptionPane.showMessageDialog(this, "Signed in as " + email);
+        new calendar_gui().setVisible(true);
+        dispose();
     }
 
     // ===== Helper ต่างๆ =====
