@@ -1,4 +1,4 @@
- import javax.swing.*;
+import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -36,7 +36,7 @@ public class  calendar_gui extends JFrame {
             LocalDate.of(2025, 9, 25), LocalDate.of(2025, 9, 26),
             LocalDate.of(2025, 9, 30)));
 
-    int allWork = 8, done = 1, notDone = 7, dueSoon = 4;
+    int allWork, done, notDone, dueSoon; // ค่าจริงถูกดึงมาจาก TodoList.getStats() ใน refreshSummary()
 
     // ---------- คอมโพเนนต์ ----------
     JComboBox<String> monthBox = new JComboBox<>();
@@ -231,10 +231,6 @@ public class  calendar_gui extends JFrame {
             g.drawString(s, (getWidth() - fm.stringWidth(s)) / 2,
                     (getHeight() - 2 - fm.getHeight()) / 2 + fm.getAscent());
 
-            if (inMonth && taskDays.contains(date)) {       // จุดแดง = มีงาน
-                g.setColor(Color.RED);
-                g.fillOval(getWidth() / 2 - 2, getHeight() - 9, 4, 4);
-            }
             g.dispose();
         }
     }
@@ -254,6 +250,9 @@ public class  calendar_gui extends JFrame {
         grid.repaint();
     }
 
+    // ป้ายตัวเลข 4 อัน เก็บเป็น field ไว้เพื่อให้ refreshSummary() อัปเดตข้อความทีหลังได้
+    JLabel lblAllWork, lblDone, lblNotDone, lblDueSoon;
+
     // ---------- ตารางสรุปด้านล่าง ----------
     JPanel buildSummary() {
         JPanel p = new JPanel(new GridLayout(4, 1));
@@ -261,18 +260,25 @@ public class  calendar_gui extends JFrame {
         p.setBorder(new MatteBorder(1, 0, 1, 0, LINE));
         p.setPreferredSize(new Dimension(0, 250));
 
-        JPanel allRow = summaryRow("All work", allWork + "  \u2192", PINK, PINK, false);
+        lblAllWork = new JLabel();
+        lblDone = new JLabel();
+        lblNotDone = new JLabel();
+        lblDueSoon = new JLabel();
+
+        JPanel allRow = summaryRow("All work", lblAllWork, PINK, PINK, false);
         allRow.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         allRow.addMouseListener(new MouseAdapter() {
         public void mouseClicked(MouseEvent e) { TodoList.open(calendar_gui.this); }});
         p.add(allRow);
-        p.add(summaryRow("Done", String.valueOf(done), GREEN, GREEN, true));
-        p.add(summaryRow("Not Done", String.valueOf(notDone), RED, RED, true));
-        p.add(summaryRow("Due soon", String.valueOf(dueSoon), YELLOW, YELLOW, true));
+        p.add(summaryRow("Done", lblDone, GREEN, GREEN, true));
+        p.add(summaryRow("Not Done", lblNotDone, RED, RED, true));
+        p.add(summaryRow("Due soon", lblDueSoon, YELLOW, YELLOW, true));
+
+        refreshSummary(); // ใส่ตัวเลขจริงตั้งแต่ตอนเปิดหน้าครั้งแรก
         return p;
     }
 
-    JPanel summaryRow(String label, String value, Color c1, Color c2, boolean topLine) {
+    JPanel summaryRow(String label, JLabel valueLabel, Color c1, Color c2, boolean topLine) {
         JPanel row = new JPanel(new BorderLayout());
         row.setBackground(Color.WHITE);
         row.setBorder(new CompoundBorder(
@@ -283,13 +289,27 @@ public class  calendar_gui extends JFrame {
         l.setFont(BOLD.deriveFont(17f));
         l.setForeground(c1);
 
-        JLabel v = new JLabel(value);
-        v.setFont(BOLD.deriveFont(17f));
-        v.setForeground(c2);
+        valueLabel.setFont(BOLD.deriveFont(17f));
+        valueLabel.setForeground(c2);
 
         row.add(l, BorderLayout.WEST);
-        row.add(v, BorderLayout.EAST);
+        row.add(valueLabel, BorderLayout.EAST);
         return row;
+    }
+
+    // ---------- ดึงตัวเลขล่าสุดจาก TodoList มาอัปเดตป้ายทั้ง 4 ----------
+    // เรียกตอนสร้างหน้าครั้งแรก และเรียกอีกครั้งทุกครั้งที่ TodoList.goBack() พากลับมาที่นี่
+    void refreshSummary() {
+        int[] stats = TodoList.getStats(); // {total, done, notDone, dueSoon}
+        allWork = stats[0];
+        done = stats[1];
+        notDone = stats[2];
+        dueSoon = stats[3];
+
+        lblAllWork.setText(allWork + "  \u2192");
+        lblDone.setText(String.valueOf(done));
+        lblNotDone.setText(String.valueOf(notDone));
+        lblDueSoon.setText(String.valueOf(dueSoon));
     }
 
     // ---------- main ----------
