@@ -6,7 +6,7 @@ import javax.swing.border.*;
 
 public class Login extends JFrame {
 
-    // ===== สีตามดีไซน์ =====
+    // ===== Colors from the design =====
     private static final Color BG        = new Color(253, 244, 253);
     private static final Color DARK_PINK = new Color(155, 45, 115);
     private static final Color PINK      = new Color(232, 110, 180);
@@ -29,14 +29,14 @@ public class Login extends JFrame {
         setContentPane(background);
     }
 
-    // ===== การ์ดสีขาวตรงกลาง (มีเงา) =====
+    // ===== White card in the center (with shadow) =====
     private JPanel createCard() {
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                for (int i = 8; i > 0; i--) { // เงา
+                for (int i = 8; i > 0; i--) { // shadow
                     g2.setColor(new Color(0, 0, 0, 6));
                     g2.fillRoundRect(8 - i, 10 - i, getWidth() - 16 + i * 2, getHeight() - 16 + i * 2, 16, 16);
                 }
@@ -54,7 +54,7 @@ public class Login extends JFrame {
         card.add(centered(new AvatarIcon()));
         card.add(Box.createVerticalStrut(15));
 
-        // ข้อความต้อนรับ
+        // Welcome text
         JLabel welcome = new JLabel("WELCOME !");
         welcome.setFont(new Font("Tahoma", Font.BOLD, 16));
         welcome.setForeground(DARK_PINK);
@@ -95,7 +95,7 @@ public class Login extends JFrame {
         card.add(right(forgot));
         card.add(Box.createVerticalStrut(20));
 
-        // ปุ่ม Sign in
+        // Sign in button
         JButton signIn = new JButton("Sign in");
         signIn.setFont(BOLD);
         signIn.setForeground(PINK);
@@ -112,7 +112,7 @@ public class Login extends JFrame {
         card.add(btnWrap);
         card.add(Box.createVerticalStrut(25));
 
-        // เส้นคั่น
+        // Divider line
         JSeparator sep = new JSeparator();
         sep.setForeground(new Color(225, 225, 225));
         sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
@@ -141,12 +141,12 @@ public class Login extends JFrame {
         String password = new String(passwordField.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "กรุณากรอก username และ password");
+            JOptionPane.showMessageDialog(this, "Please enter username and password");
             return;
         }
 
         if (!UserStorage.validateLogin(username, password)) {
-            JOptionPane.showMessageDialog(this, "username หรือ password ไม่ถูกต้อง");
+            JOptionPane.showMessageDialog(this, "Incorrect username or password");
             return;
         }
 
@@ -154,7 +154,7 @@ public class Login extends JFrame {
         dispose();
     }
 
-    // ===== Helper ต่างๆ =====
+    // ===== Helpers =====
     private JLabel makeLabel(String text) {
         JLabel l = new JLabel(text);
         l.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -184,7 +184,7 @@ public class Login extends JFrame {
     private JPanel left(JComponent c)     { return row(c, FlowLayout.LEFT); }
     private JPanel right(JComponent c)    { return row(c, FlowLayout.RIGHT); }
 
-    // ===== ไอคอนรูปคนวงกลม =====
+    // ===== Circular person icon =====
     private static class AvatarIcon extends JComponent {
         AvatarIcon() { setPreferredSize(new Dimension(70, 70)); }
 
@@ -197,8 +197,8 @@ public class Login extends JFrame {
             g2.fillRect(0, 0, 70, 70);
 
             g2.setColor(new Color(190, 165, 240));
-            g2.fill(new Ellipse2D.Float(22, 14, 26, 26));   // หัว
-            g2.fill(new Ellipse2D.Float(8, 46, 54, 40));    // ไหล่
+            g2.fill(new Ellipse2D.Float(22, 14, 26, 26));   // head
+            g2.fill(new Ellipse2D.Float(8, 46, 54, 40));    // shoulders
             g2.setColor(Color.WHITE);
             g2.setStroke(new BasicStroke(2.5f));
             g2.draw(new Ellipse2D.Float(22, 14, 26, 26));

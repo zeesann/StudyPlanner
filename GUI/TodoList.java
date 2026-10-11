@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Study Planner - ไฟล์เดียวจบ (Java Swing)
- * คอมไพล์:  javac TodoList.java
- * รัน:      java TodoList
+ * Study Planner - single file (Java Swing)
+ * Compile: javac TodoList.java
+ * Run:     java TodoList
  */
 public class TodoList extends JFrame {
 
-    // ---------- สี ----------
+    // ---------- Colors ----------
     static final Color BG        = new Color(0xFB, 0xF1, 0xF8);
     static final Color PINK_TEXT = new Color(0xE8, 0xA5, 0xBC);
     static final Color PINK_LINK = new Color(0xC7, 0x7D, 0xBE);
@@ -29,7 +29,7 @@ public class TodoList extends JFrame {
     static final Font FONT_NORM  = new Font("Tahoma", Font.BOLD, 14);
     static final Font FONT_SMALL = new Font("Tahoma", Font.PLAIN, 12);
 
-    // ---------- สลับหน้า ----------
+    // ---------- Page switching ----------
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel pages = new JPanel(cardLayout);
     private TodoPage todoPage;
@@ -43,10 +43,10 @@ public class TodoList extends JFrame {
     from.setVisible(false);
 }
 
-    // กลับไปหน้า Calendar (หน้า Calendar ถูกซ่อนไว้ตอน open)
+    // Go back to the Calendar page (the Calendar page was hidden when opened)
     void goBack() {
         if (calendarFrame instanceof calendar_gui) {
-            ((calendar_gui) calendarFrame).refreshSummary(); // อัปเดตตัวเลขก่อนกลับไปโชว์
+            ((calendar_gui) calendarFrame).refreshSummary(); // Update the numbers before showing it again
         }
         if (calendarFrame != null) calendarFrame.setVisible(true);
         setVisible(false);
@@ -76,7 +76,7 @@ public class TodoList extends JFrame {
         cardLayout.show(pages, name);
     }
 
-    // ---------- แถบด้านบน ----------
+    // ---------- Top bar ----------
     private JPanel createTopBar() {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(Color.WHITE);
@@ -90,7 +90,7 @@ public class TodoList extends JFrame {
 
         JButton signOut = linkButton("sign out", PINK_TEXT);
         signOut.addActionListener(e -> {
-            int ok = JOptionPane.showConfirmDialog(this, "ต้องการออกจากระบบใช่ไหม?",
+            int ok = JOptionPane.showConfirmDialog(this, "Do you want to sign out?",
                     "Sign out", JOptionPane.YES_NO_OPTION);
             if (ok == JOptionPane.YES_OPTION) {
                 if (calendarFrame != null) calendarFrame.dispose();
@@ -105,7 +105,7 @@ public class TodoList extends JFrame {
         return bar;
     }
 
-    // ปุ่มแบบข้อความล้วน (ไม่มีกรอบ)
+    // Plain text button (no border)
     static JButton linkButton(String text, Color color) {
         JButton b = new JButton(text);
         b.setFont(FONT_NORM);
@@ -118,7 +118,7 @@ public class TodoList extends JFrame {
     }
 
     // =====================================================
-    //                    หน้า To-Do List
+    //                    To-Do List page
     // =====================================================
     static class Task {
         String subject, description;
@@ -133,7 +133,7 @@ public class TodoList extends JFrame {
         }
     }
 
-    // ---------- ข้อมูลงานทั้งหมด เก็บไว้ที่เดียว (static) ให้ calendar_gui ดึงไปใช้ได้ด้วย ----------
+    // ---------- All task data, kept in one place (static) so calendar_gui can access it too ----------
     static final List<Task> tasks = new ArrayList<>();
     static {
         tasks.add(new Task("subject1", "Description", LocalDate.now().plusDays(1), false));
@@ -141,7 +141,7 @@ public class TodoList extends JFrame {
         tasks.add(new Task("subject3", "Description", LocalDate.now().minusDays(1), true));
     }
 
-    // คำนวณสถิติล่าสุดจาก tasks จริง -> {total, done, notDone, dueSoon}
+    // Compute the latest stats from the real tasks -> {total, done, notDone, dueSoon}
     static int[] getStats() {
         int total = tasks.size();
         int done = 0;
@@ -152,7 +152,7 @@ public class TodoList extends JFrame {
         for (Task t : tasks) {
             if (!t.done) {
                 long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), t.deadline);
-                if (daysLeft >= 0 && daysLeft <= 3) dueSoon++; // เกณฑ์เดียวกับปุ่ม Soon ในหน้านี้
+                if (daysLeft >= 0 && daysLeft <= 3) dueSoon++; // same threshold as the Soon button on this page
             }
         }
         return new int[]{total, done, notDone, dueSoon};
@@ -168,7 +168,7 @@ public class TodoList extends JFrame {
             setLayout(new BorderLayout());
             setBorder(new EmptyBorder(10, 20, 20, 20));
 
-            // ---- ส่วนหัว: To-Do List ----
+            // ---- Header: To-Do List ----
             JPanel header = new JPanel();
             header.setOpaque(false);
             header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
@@ -187,13 +187,13 @@ public class TodoList extends JFrame {
             header.add(title);
             add(header, BorderLayout.NORTH);
 
-            // ---- การ์ดสีขาว ----
+            // ---- White card ----
             JPanel card = new JPanel(new BorderLayout(0, 15));
             card.setBackground(Color.WHITE);
             card.setBorder(new EmptyBorder(15, 15, 15, 15));
             add(card, BorderLayout.CENTER);
 
-            // ปุ่มกรอง
+            // Filter buttons
             JPanel filters = new JPanel(new GridLayout(1, 4, 10, 0));
             filters.setOpaque(false);
             filters.setPreferredSize(new Dimension(0, 70));
@@ -203,7 +203,7 @@ public class TodoList extends JFrame {
             filters.add(filterButton("Soon", "SOON", YELLOW));
             card.add(filters, BorderLayout.NORTH);
 
-            // พื้นที่สีชมพู + รายการ
+            // Pink area + list
             JPanel pinkArea = new JPanel(new BorderLayout(0, 10));
             pinkArea.setBackground(PINK_AREA);
             pinkArea.setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -217,7 +217,7 @@ public class TodoList extends JFrame {
             scroll.getVerticalScrollBar().setUnitIncrement(16);
             pinkArea.add(scroll, BorderLayout.CENTER);
 
-            // ปุ่ม Add subject
+            // Add subject button
             JButton add = new JButton("Add subject");
             add.setFont(FONT_BIG);
             add.setForeground(GRAY_TEXT);
@@ -254,12 +254,12 @@ public class TodoList extends JFrame {
             switch (filter) {
                 case "DONE":     return t.done;
                 case "NOT_DONE": return !t.done;
-                case "SOON":     return !t.done && daysLeft >= 0 && daysLeft <= 3; // ภายใน 3 วัน
+                case "SOON":     return !t.done && daysLeft >= 0 && daysLeft <= 3; // within 3 days
                 default:         return true;
             }
         }
 
-        // วาดรายการใหม่ทั้งหมด
+        // Redraw the entire list
         void refresh() {
             listPanel.removeAll();
             for (Task t : tasks) {
@@ -278,7 +278,7 @@ public class TodoList extends JFrame {
             row.setBorder(new EmptyBorder(12, 15, 12, 15));
             row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
 
-            // checkbox วงกลม
+            // Circular checkbox
             JCheckBox cb = new JCheckBox();
             cb.setOpaque(false);
             cb.setIcon(new CircleIcon(false));
@@ -312,10 +312,10 @@ public class TodoList extends JFrame {
             return row;
         }
 
-        // เปิดหน้า Add subject (ของเราเอง) แล้วซ่อนหน้านี้ไว้
+        // Open the Add subject page (our own) and hide this page
         private void openAddSubject() {
             AddSubject page = new AddSubject(TodoList.this, task -> {
-                tasks.add(task);   // ได้งานใหม่จากหน้า Add subject
+                tasks.add(task);   // Got a new task from the Add subject page
                 refresh();
             });
             page.setVisible(true);
@@ -323,7 +323,7 @@ public class TodoList extends JFrame {
         }
     }
 
-    // ---------- ไอคอนวงกลมสำหรับ checkbox ----------
+    // ---------- Circle icon for the checkbox ----------
     static class CircleIcon implements Icon {
         private final boolean checked;
         CircleIcon(boolean checked) { this.checked = checked; }

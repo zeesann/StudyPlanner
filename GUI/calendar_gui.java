@@ -7,13 +7,13 @@ import java.time.format.TextStyle;
 import java.util.*;
 
 /**
- * Calendar - Java Swing (ไฟล์เดียว ไม่ใช้ XML)
- * คอมไพล์: javac *.java
- * รัน:      java Login
+ * Calendar - Java Swing (single file, no XML)
+ * Compile: javac *.java
+ * Run:     java Login
  */
 public class  calendar_gui extends JFrame {
 
-    // ---------- สี ----------
+    // ---------- Colors ----------
     static final Color BG      = new Color(0xFDF3FD);
     static final Color PINK    = new Color(0xF0A8C8);
     static final Color TITLE   = new Color(0xE58AC0);
@@ -27,7 +27,7 @@ public class  calendar_gui extends JFrame {
 
     static final Font BOLD = new Font("SansSerif", Font.BOLD, 16);
 
-    // ---------- ข้อมูล ----------
+    // ---------- Data ----------
     YearMonth current = YearMonth.of(2025, 9);
     LocalDate rangeStart = LocalDate.of(2025, 9, 9);
     LocalDate rangeEnd   = LocalDate.of(2025, 9, 13);
@@ -36,9 +36,9 @@ public class  calendar_gui extends JFrame {
             LocalDate.of(2025, 9, 25), LocalDate.of(2025, 9, 26),
             LocalDate.of(2025, 9, 30)));
 
-    int allWork, done, notDone, dueSoon; // ค่าจริงถูกดึงมาจาก TodoList.getStats() ใน refreshSummary()
+    int allWork, done, notDone, dueSoon; // actual values are pulled from TodoList.getStats() in refreshSummary()
 
-    // ---------- คอมโพเนนต์ ----------
+    // ---------- Components ----------
     JComboBox<String> monthBox = new JComboBox<>();
     JComboBox<Integer> yearBox = new JComboBox<>();
     JPanel grid = new JPanel(new GridLayout(0, 7, 4, 6));
@@ -59,7 +59,7 @@ public class  calendar_gui extends JFrame {
         rebuildCalendar();
     }
 
-    // ---------- แถบบน ----------
+    // ---------- Top bar ----------
     JPanel buildTopBar() {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(Color.WHITE);
@@ -79,7 +79,7 @@ public class  calendar_gui extends JFrame {
                 if (JOptionPane.showConfirmDialog(calendar_gui.this, "Sign out?",
                         "Sign out", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     dispose();
-                    TodoList.reset();   // ล้างหน้า To-Do เดิมทิ้ง
+                    TodoList.reset();   // Clear the old To-Do page
                     new Login().setVisible(true);
                 }
             }
@@ -90,7 +90,7 @@ public class  calendar_gui extends JFrame {
         return bar;
     }
 
-    // ---------- ส่วนกลาง (หัวข้อ + ปฏิทิน) ----------
+    // ---------- Center section (heading + calendar) ----------
     JPanel buildCenter() {
         JPanel center = new JPanel(new BorderLayout());
         center.setBackground(BG);
@@ -102,12 +102,12 @@ public class  calendar_gui extends JFrame {
         heading.setBorder(new EmptyBorder(0, 0, 20, 0));
         center.add(heading, BorderLayout.NORTH);
 
-        // การ์ดสีขาวของปฏิทิน
+        // White card for the calendar
         JPanel card = new JPanel(new BorderLayout(0, 10));
         card.setBackground(Color.WHITE);
         card.setBorder(new EmptyBorder(14, 14, 14, 14));
 
-        // แถวเลือกเดือน/ปี
+        // Month/year selector row
         for (Month m : Month.values())
             monthBox.addItem(m.getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
         for (int y = 2020; y <= 2035; y++) yearBox.addItem(y);
@@ -158,7 +158,7 @@ public class  calendar_gui extends JFrame {
         return b;
     }
 
-    // ---------- สร้างปฏิทินใหม่ ----------
+    // ---------- Rebuild the calendar ----------
     void rebuildCalendar() {
         updating = true;
         monthBox.setSelectedIndex(current.getMonthValue() - 1);
@@ -175,16 +175,16 @@ public class  calendar_gui extends JFrame {
             grid.add(l);
         }
 
-        int offset = current.atDay(1).getDayOfWeek().getValue() % 7; // อาทิตย์ = 0
+        int offset = current.atDay(1).getDayOfWeek().getValue() % 7; // Sunday = 0
         int total = (int) Math.ceil((offset + current.lengthOfMonth()) / 7.0) * 7;
 
         for (int i = 0; i < total; i++) {
             int dayNum = i - offset + 1;
             if (dayNum < 1) {
-                grid.add(new JLabel());                       // ช่องว่างก่อนวันที่ 1
+                grid.add(new JLabel());                       // Blank cells before day 1
             } else if (dayNum > current.lengthOfMonth()) {
                 LocalDate d = current.plusMonths(1).atDay(dayNum - current.lengthOfMonth());
-                grid.add(new DayCell(d, false));              // วันของเดือนถัดไป (สีจาง)
+                grid.add(new DayCell(d, false));              // Days from next month (faded)
             } else {
                 grid.add(new DayCell(current.atDay(dayNum), true));
             }
@@ -193,7 +193,7 @@ public class  calendar_gui extends JFrame {
         grid.repaint();
     }
 
-    // ---------- ช่องวันที่ ----------
+    // ---------- Day cell ----------
     class DayCell extends JPanel {
         final LocalDate date;
         final boolean inMonth;
@@ -235,7 +235,7 @@ public class  calendar_gui extends JFrame {
         }
     }
 
-    // คลิกครั้งแรก = วันเริ่ม, คลิกครั้งที่สอง = วันจบ
+    // First click = start date, second click = end date
     boolean pickingEnd = false;
     void onDayClick(LocalDate d) {
         if (!pickingEnd) {
@@ -250,10 +250,10 @@ public class  calendar_gui extends JFrame {
         grid.repaint();
     }
 
-    // ป้ายตัวเลข 4 อัน เก็บเป็น field ไว้เพื่อให้ refreshSummary() อัปเดตข้อความทีหลังได้
+    // The 4 number labels, stored as fields so refreshSummary() can update their text later
     JLabel lblAllWork, lblDone, lblNotDone, lblDueSoon;
 
-    // ---------- ตารางสรุปด้านล่าง ----------
+    // ---------- Bottom summary table ----------
     JPanel buildSummary() {
         JPanel p = new JPanel(new GridLayout(4, 1));
         p.setBackground(Color.WHITE);
@@ -274,7 +274,7 @@ public class  calendar_gui extends JFrame {
         p.add(summaryRow("Not Done", lblNotDone, RED, RED, true));
         p.add(summaryRow("Due soon", lblDueSoon, YELLOW, YELLOW, true));
 
-        refreshSummary(); // ใส่ตัวเลขจริงตั้งแต่ตอนเปิดหน้าครั้งแรก
+        refreshSummary(); // Fill in the real numbers as soon as the page opens
         return p;
     }
 
@@ -297,8 +297,8 @@ public class  calendar_gui extends JFrame {
         return row;
     }
 
-    // ---------- ดึงตัวเลขล่าสุดจาก TodoList มาอัปเดตป้ายทั้ง 4 ----------
-    // เรียกตอนสร้างหน้าครั้งแรก และเรียกอีกครั้งทุกครั้งที่ TodoList.goBack() พากลับมาที่นี่
+    // ---------- Pull the latest numbers from TodoList to update all 4 labels ----------
+    // Called when the page is first created, and again every time TodoList.goBack() returns here
     void refreshSummary() {
         int[] stats = TodoList.getStats(); // {total, done, notDone, dueSoon}
         allWork = stats[0];
