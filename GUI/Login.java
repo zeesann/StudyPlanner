@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -13,7 +14,7 @@ public class Login extends JFrame {
     private static final Color LAVENDER  = new Color(212, 193, 247);
     private static final Font  BOLD      = new Font("Tahoma", Font.BOLD, 14);
 
-    private JTextField emailField;
+    private JTextField usernameField;
     private JPasswordField passwordField;
 
     public Login() {
@@ -66,11 +67,11 @@ public class Login extends JFrame {
         card.add(centered(subtitle));
         card.add(Box.createVerticalStrut(30));
 
-        // Email
-        card.add(left(makeLabel("EMAIL")));
+        // Username
+        card.add(left(makeLabel("USERNAME")));
         card.add(Box.createVerticalStrut(6));
-        emailField = new JTextField();
-        card.add(field(emailField));
+        usernameField = new JTextField();
+        card.add(field(usernameField));
         card.add(Box.createVerticalStrut(20));
 
         // Password
@@ -85,7 +86,12 @@ public class Login extends JFrame {
         forgot.setFont(new Font("Tahoma", Font.BOLD, 10));
         forgot.setForeground(DARK_PINK);
         forgot.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        // TODO: เปิดหน้ารีเซ็ตรหัสผ่าน
+        forgot.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                new ForgotPassword().setVisible(true);
+                dispose();
+            }
+        });
         card.add(right(forgot));
         card.add(Box.createVerticalStrut(20));
 
@@ -118,7 +124,12 @@ public class Login extends JFrame {
         create.setFont(BOLD);
         create.setForeground(PINK);
         create.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        // TODO: เปิดหน้าสมัครสมาชิก
+        create.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                new CreateAccount().setVisible(true);
+                dispose();
+            }
+        });
         card.add(centered(create));
 
         getRootPane().setDefaultButton(signIn);
@@ -126,13 +137,19 @@ public class Login extends JFrame {
     }
 
     private void handleSignIn() {
-        String email = emailField.getText().trim();
+        String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
 
-        if (email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "กรุณากรอกอีเมลและรหัสผ่าน");
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "กรุณากรอก username และ password");
             return;
         }
+
+        if (!UserStorage.validateLogin(username, password)) {
+            JOptionPane.showMessageDialog(this, "username หรือ password ไม่ถูกต้อง");
+            return;
+        }
+
         new calendar_gui().setVisible(true);
         dispose();
     }
