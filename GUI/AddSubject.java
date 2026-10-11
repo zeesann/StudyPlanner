@@ -22,10 +22,10 @@ public class AddSubject extends JFrame {
     JComboBox<String> statusBox = new JComboBox<>(new String[]{"Todo", "In progress", "Complete"});
     LocalDate deadlineDate = null;
 
-    TodoList parent;                       // หน้า To-Do ที่เปิดหน้านี้
-    Consumer<TodoList.Task> onSave;        // ส่งงานใหม่กลับไปให้หน้า To-Do
+    TodoList parent;                       // The To-Do page that opened this page
+    Consumer<TodoList.Task> onSave;        // Sends the new task back to the To-Do page
 
-    // ใช้ตอนรันหน้านี้เดี่ยวๆ เพื่อทดสอบ
+    // Used when running this page standalone for testing
     public AddSubject() {
         this(null, null);
     }
@@ -41,7 +41,7 @@ public class AddSubject extends JFrame {
         if (parent == null) {
             setDefaultCloseOperation(EXIT_ON_CLOSE);
         } else {
-            // ปิดหน้านี้ (กด X หรือหลัง Save) แล้วให้หน้า To-Do กลับมาแสดง
+            // Close this page (X button or after Save) then show the To-Do page again
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
             addWindowListener(new WindowAdapter() {
                 @Override
@@ -97,20 +97,20 @@ public class AddSubject extends JFrame {
     void save() {
         String name = nameField.getText().trim();
         if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "กรุณากรอกชื่อวิชา");
+            JOptionPane.showMessageDialog(this, "Please enter a subject name");
             return;
         }
         if (deadlineDate == null) {
-            JOptionPane.showMessageDialog(this, "กรุณาเลือก Deadline");
+            JOptionPane.showMessageDialog(this, "Please select a deadline");
             return;
         }
-        // Complete = เสร็จแล้ว, Todo / In progress = ยังไม่เสร็จ
+        // Complete = done, Todo / In progress = not done
         boolean done = "Complete".equals(statusBox.getSelectedItem());
 
         if (onSave != null) {
             onSave.accept(new TodoList.Task(name, descField.getText().trim(), deadlineDate, done));
         }
-        dispose();   // ปิดหน้านี้ -> windowClosed จะเปิดหน้า To-Do กลับมา
+        dispose();   // Close this page -> windowClosed will reopen the To-Do page
     }
 
     void openCalendar() {

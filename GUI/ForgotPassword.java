@@ -121,22 +121,22 @@ public class ForgotPassword extends JFrame {
         String confirm = new String(confirmField.getPassword());
 
         if (username.isEmpty() || newPassword.isEmpty() || confirm.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "กรุณากรอกข้อมูลให้ครบทุกช่อง");
+            JOptionPane.showMessageDialog(this, "Please fill in all fields");
             return;
         }
 
         if (!newPassword.equals(confirm)) {
-            JOptionPane.showMessageDialog(this, "password ใหม่ทั้งสองช่องไม่ตรงกัน");
+            JOptionPane.showMessageDialog(this, "The new password fields do not match");
             return;
         }
 
         boolean success = UserStorage.resetPassword(username, newPassword);
         if (!success) {
-            JOptionPane.showMessageDialog(this, "ไม่พบ username นี้ในระบบ");
+            JOptionPane.showMessageDialog(this, "Username not found");
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "เปลี่ยนรหัสผ่านสำเร็จ! กรุณาเข้าสู่ระบบด้วยรหัสใหม่");
+        JOptionPane.showMessageDialog(this, "Password reset successfully! Please sign in with your new password");
         new Login().setVisible(true);
         dispose();
     }

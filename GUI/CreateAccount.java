@@ -121,22 +121,22 @@ public class CreateAccount extends JFrame {
         String confirm  = new String(confirmField.getPassword());
 
         if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "กรุณากรอกข้อมูลให้ครบทุกช่อง");
+            JOptionPane.showMessageDialog(this, "Please fill in all fields");
             return;
         }
 
         if (!password.equals(confirm)) {
-            JOptionPane.showMessageDialog(this, "password และ confirm password ไม่ตรงกัน");
+            JOptionPane.showMessageDialog(this, "Password and confirm password do not match");
             return;
         }
 
         boolean success = UserStorage.registerUser(username, password);
         if (!success) {
-            JOptionPane.showMessageDialog(this, "username นี้ถูกใช้สมัครไปแล้ว กรุณาใช้ username อื่น");
+            JOptionPane.showMessageDialog(this, "This username is already taken. Please choose another username");
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
+        JOptionPane.showMessageDialog(this, "Account created successfully! Please sign in");
         new Login().setVisible(true);
         dispose();
     }
