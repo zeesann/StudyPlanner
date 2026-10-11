@@ -45,6 +45,9 @@ public class TodoList extends JFrame {
 
     // กลับไปหน้า Calendar (หน้า Calendar ถูกซ่อนไว้ตอน open)
     void goBack() {
+        if (calendarFrame instanceof calendar_gui) {
+            ((calendar_gui) calendarFrame).refreshSummary(); // อัปเดตตัวเลขก่อนกลับไปโชว์
+        }
         if (calendarFrame != null) calendarFrame.setVisible(true);
         setVisible(false);
     }
@@ -130,8 +133,32 @@ public class TodoList extends JFrame {
         }
     }
 
+    // ---------- ข้อมูลงานทั้งหมด เก็บไว้ที่เดียว (static) ให้ calendar_gui ดึงไปใช้ได้ด้วย ----------
+    static final List<Task> tasks = new ArrayList<>();
+    static {
+        tasks.add(new Task("subject1", "Description", LocalDate.now().plusDays(1), false));
+        tasks.add(new Task("subject2", "Description", LocalDate.now().plusDays(5), false));
+        tasks.add(new Task("subject3", "Description", LocalDate.now().minusDays(1), true));
+    }
+
+    // คำนวณสถิติล่าสุดจาก tasks จริง -> {total, done, notDone, dueSoon}
+    static int[] getStats() {
+        int total = tasks.size();
+        int done = 0;
+        for (Task t : tasks) if (t.done) done++;
+        int notDone = total - done;
+
+        int dueSoon = 0;
+        for (Task t : tasks) {
+            if (!t.done) {
+                long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), t.deadline);
+                if (daysLeft >= 0 && daysLeft <= 3) dueSoon++; // เกณฑ์เดียวกับปุ่ม Soon ในหน้านี้
+            }
+        }
+        return new int[]{total, done, notDone, dueSoon};
+    }
+
     class TodoPage extends JPanel {
-        private final List<Task> tasks = new ArrayList<>();
         private String filter = "ALL";
         private final JPanel listPanel = new JPanel();
         private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -140,11 +167,6 @@ public class TodoList extends JFrame {
             setBackground(BG);
             setLayout(new BorderLayout());
             setBorder(new EmptyBorder(10, 20, 20, 20));
-
-            // ข้อมูลตัวอย่าง
-            tasks.add(new Task("subject1", "Description", LocalDate.now().plusDays(1), false));
-            tasks.add(new Task("subject2", "Description", LocalDate.now().plusDays(5), false));
-            tasks.add(new Task("subject3", "Description", LocalDate.now().minusDays(1), true));
 
             // ---- ส่วนหัว: To-Do List ----
             JPanel header = new JPanel();
