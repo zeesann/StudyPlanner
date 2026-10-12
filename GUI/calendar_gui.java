@@ -28,15 +28,11 @@ public class  calendar_gui extends JFrame {
     static final Font BOLD = new Font("SansSerif", Font.BOLD, 16);
 
     // ---------- Data ----------
-    YearMonth current = YearMonth.of(2025, 9);
-    LocalDate rangeStart = LocalDate.of(2025, 9, 9);
-    LocalDate rangeEnd   = LocalDate.of(2025, 9, 13);
-    final Set<LocalDate> taskDays = new HashSet<>(Arrays.asList(
-            LocalDate.of(2025, 9, 10), LocalDate.of(2025, 9, 18),
-            LocalDate.of(2025, 9, 25), LocalDate.of(2025, 9, 26),
-            LocalDate.of(2025, 9, 30)));
-
-    int allWork, done, notDone, dueSoon; // actual values are pulled from TodoList.getStats() in refreshSummary()
+    YearMonth current = YearMonth.now();
+    LocalDate rangeStart = LocalDate.now();
+    LocalDate rangeEnd   = LocalDate.now();
+    final StudyPlannerApp app;           // logic layer
+    int allWork, done, notDone, dueSoon; // actual values are pulled from app.getStats() in refreshSummary()
 
     // ---------- Components ----------
     JComboBox<String> monthBox = new JComboBox<>();
@@ -44,8 +40,9 @@ public class  calendar_gui extends JFrame {
     JPanel grid = new JPanel(new GridLayout(0, 7, 4, 6));
     boolean updating = false;
 
-    public calendar_gui() {
+    public calendar_gui(StudyPlannerApp app) {
         super("Study Planner");
+        this.app = app;
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(487, 802);
         setLocationRelativeTo(null);
@@ -204,6 +201,12 @@ public class  calendar_gui extends JFrame {
             setOpaque(false);
             setPreferredSize(new Dimension(44, 40));
             if (inMonth) {
+                java.util.List<Task> due = app.getTasksByDate(date);
+                if (!due.isEmpty()) {
+                    StringBuilder sb = new StringBuilder("<html>");
+                    for (Task t : due) sb.append(t.isDone() ? "\u2713 " : "\u2022 ").append(t.getTitle()).append("<br>");
+                    setToolTipText(sb.append("</html>").toString());
+                }
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 addMouseListener(new MouseAdapter() {
                     public void mouseClicked(MouseEvent e) { onDayClick(DayCell.this.date); }
@@ -219,13 +222,25 @@ public class  calendar_gui extends JFrame {
             boolean isEdge = date.equals(rangeStart) || date.equals(rangeEnd);
             boolean inRange = !date.isBefore(rangeStart) && !date.isAfter(rangeEnd);
 
-            if (inMonth && inRange) {
+            // Task colour: red = has unfinished task, green = all tasks that day are done
+            StudyPlannerApp.DayStatus st = inMonth ? app.getDayStatus(date) : StudyPlannerApp.DayStatus.NONE;
+            boolean hasTask = st != StudyPlannerApp.DayStatus.NONE;
+
+            if (hasTask) {
+                g.setColor(st == StudyPlannerApp.DayStatus.PENDING ? RED : GREEN);
+                g.fillRoundRect(0, 0, getWidth(), getHeight() - 2, 10, 10);
+                if (isEdge) {                       // selected range edge on a task day -> dark outline
+                    g.setColor(DARK);
+                    g.setStroke(new BasicStroke(2f));
+                    g.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 5, 10, 10);
+                }
+            } else if (inMonth && inRange) {
                 g.setColor(isEdge ? DARK : RANGE);
                 g.fillRoundRect(0, 0, getWidth(), getHeight() - 2, 10, 10);
             }
 
             g.setFont(new Font("SansSerif", Font.PLAIN, 15));
-            g.setColor(!inMonth ? GREY : (isEdge ? Color.WHITE : new Color(0x444444)));
+            g.setColor(!inMonth ? GREY : ((isEdge || hasTask) ? Color.WHITE : new Color(0x444444)));
             String s = String.valueOf(date.getDayOfMonth());
             FontMetrics fm = g.getFontMetrics();
             g.drawString(s, (getWidth() - fm.stringWidth(s)) / 2,
@@ -268,7 +283,7 @@ public class  calendar_gui extends JFrame {
         JPanel allRow = summaryRow("All work", lblAllWork, PINK, PINK, false);
         allRow.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         allRow.addMouseListener(new MouseAdapter() {
-        public void mouseClicked(MouseEvent e) { TodoList.open(calendar_gui.this); }});
+        public void mouseClicked(MouseEvent e) { TodoList.open(calendar_gui.this, app); }});
         p.add(allRow);
         p.add(summaryRow("Done", lblDone, GREEN, GREEN, true));
         p.add(summaryRow("Not Done", lblNotDone, RED, RED, true));
@@ -300,20 +315,22 @@ public class  calendar_gui extends JFrame {
     // ---------- Pull the latest numbers from TodoList to update all 4 labels ----------
     // Called when the page is first created, and again every time TodoList.goBack() returns here
     void refreshSummary() {
-        int[] stats = TodoList.getStats(); // {total, done, notDone, dueSoon}
-        allWork = stats[0];
-        done = stats[1];
-        notDone = stats[2];
-        dueSoon = stats[3];
+        Dashboard stats = app.getStats();
+        allWork = stats.getTotal();
+        done = stats.getDone();
+        notDone = stats.getNotDone();
+        dueSoon = stats.getDueSoon();
 
         lblAllWork.setText(allWork + "  \u2192");
         lblDone.setText(String.valueOf(done));
         lblNotDone.setText(String.valueOf(notDone));
         lblDueSoon.setText(String.valueOf(dueSoon));
+
+        rebuildCalendar(); // so the coloured days / tooltips match the latest tasks
     }
 
     // ---------- main ----------
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new calendar_gui().setVisible(true));
+        SwingUtilities.invokeLater(() -> new calendar_gui(new StudyPlannerApp(new User("test"))).setVisible(true));
     }
 }

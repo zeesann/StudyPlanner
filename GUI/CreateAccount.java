@@ -14,6 +14,7 @@ public class CreateAccount extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JPasswordField confirmField;
+    private final AuthService auth = new AuthService();
 
     public CreateAccount() {
         setTitle("Create Account");
@@ -120,20 +121,19 @@ public class CreateAccount extends JFrame {
         String password = new String(passwordField.getPassword());
         String confirm  = new String(confirmField.getPassword());
 
-        if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all fields");
-            return;
-        }
-
-        if (!password.equals(confirm)) {
-            JOptionPane.showMessageDialog(this, "Password and confirm password do not match");
-            return;
-        }
-
-        boolean success = UserStorage.registerUser(username, password);
-        if (!success) {
-            JOptionPane.showMessageDialog(this, "This username is already taken. Please choose another username");
-            return;
+        switch (auth.signUp(username, password, confirm)) {
+            case EMPTY:
+                JOptionPane.showMessageDialog(this, "Please fill in all fields"); return;
+            case MISMATCH:
+                JOptionPane.showMessageDialog(this, "Password and confirm password do not match"); return;
+            case INVALID_CHARS:
+                JOptionPane.showMessageDialog(this, "Username and password cannot contain the | character"); return;
+            case TAKEN:
+                JOptionPane.showMessageDialog(this, "This username is already taken. Please choose another username"); return;
+            case ERROR:
+                JOptionPane.showMessageDialog(this, "Could not save the account. Please try again"); return;
+            default:
+                break;
         }
 
         JOptionPane.showMessageDialog(this, "Account created successfully! Please sign in");

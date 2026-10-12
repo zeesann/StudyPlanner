@@ -1,73 +1,77 @@
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
- 
+import java.util.List;
+
+/** All users' tasks live in ONE file (tasks.txt).
+ *  One line = username|title|description|subject|yyyy-MM-dd|status */
 public class StorageService {
- 
-    private String fileName = "tasks.txt";
- 
-    public void saveTasks(ArrayList<Task> tasks) {
-        try {
-            
-            FileWriter writer = new FileWriter(fileName, false);
- 
-            
-            for (Task t : tasks) {
-                String line = t.getTitle() + "|"
-                            + t.getDescription() + "|"
-                            + t.getSubject().getName() + "|"
-                            + t.getDeadline() + "|"
-                            + t.getStatus();
-                writer.write(line + "\n"); 
+
+    private static final String FILE_NAME = "tasks.txt";
+    private final String username;
+
+    public StorageService(String username) {
+        this.username = username;
+    }
+
+    private static String clean(String s) {
+        return s == null ? "" : s.replace("|", " ").replace("\r", " ").replace("\n", " ");
+    }
+
+    public void saveTasks(List<Task> tasks) {
+        // 1) keep lines that belong to other users
+        List<String> others = new ArrayList<>();
+        File file = new File(FILE_NAME);
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] p = line.split("\\|", -1);
+                    if (p.length >= 1 && !p[0].equals(username)) others.add(line);
+                }
+            } catch (IOException e) {
+                System.out.println("Failed to read: " + e.getMessage());
+                return;   // don't overwrite if we couldn't read
             }
- 
-            writer.close(); 
-            System.out.println("บันทึกข้อมูลสำเร็จ: " + tasks.size() + " งาน");
- 
+        }
+
+        // 2) write others + this user's tasks
+        try (FileWriter writer = new FileWriter(FILE_NAME, false)) {
+            for (String line : others) writer.write(line + "\n");
+            for (Task t : tasks) {
+                writer.write(clean(username) + "|"
+                        + clean(t.getTitle()) + "|"
+                        + clean(t.getDescription()) + "|"
+                        + clean(t.getSubject().getName()) + "|"
+                        + t.getDeadline() + "|"
+                        + t.getStatus() + "\n");
+            }
         } catch (IOException e) {
-            System.out.println("บันทึกข้อมูลไม่สำเร็จ: " + e.getMessage());
+            System.out.println("Failed to save: " + e.getMessage());
         }
     }
- 
+
     public ArrayList<Task> loadTasks() {
         ArrayList<Task> tasks = new ArrayList<>();
-        File file = new File(fileName);
- 
-        if (!file.exists()) {
-            System.out.println("ยังไม่มีไฟล์ข้อมูล เริ่มต้นด้วย list ว่าง");
-            return tasks;
-        }
- 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+        File file = new File(FILE_NAME);
+        if (!file.exists()) return tasks;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
- 
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\\|"); // แยก string ด้วยเครื่องหมาย |
- 
-                // parts[0]=title, parts[1]=description, parts[2]=subjectName,
-                // parts[3]=deadline, parts[4]=status
-                Subject subject = new Subject(parts[2]);
-                Task task = new Task(parts[0], parts[1], subject, parts[3]);
-                task.setStatus(parts[4]); 
-                tasks.add(task);
+                String[] p = line.split("\\|", -1);
+                if (p.length < 6 || !p[0].equals(username)) continue;
+                try {
+                    Task task = new Task(p[1], p[2], new Subject(p[3]), LocalDate.parse(p[4]));
+                    task.setStatus(p[5]);
+                    tasks.add(task);
+                } catch (Exception e) {
+                    System.out.println("Skipped unreadable line: " + line);
+                }
             }
- 
-            reader.close();
-            System.out.println("โหลดข้อมูลสำเร็จ: " + tasks.size() + " งาน");
- 
         } catch (IOException e) {
-            System.out.println("โหลดข้อมูลไม่สำเร็จ: " + e.getMessage());
+            System.out.println("Failed to load: " + e.getMessage());
         }
- 
         return tasks;
-    }
- 
-    public void clearAll() {
-        File file = new File(fileName);
-        if (file.delete()) {
-            System.out.println("ลบข้อมูลทั้งหมดแล้ว");
-        } else {
-            System.out.println("ไม่มีข้อมูลให้ลบ");
-        }
     }
 }

@@ -16,6 +16,7 @@ public class Login extends JFrame {
 
     private JTextField usernameField;
     private JPasswordField passwordField;
+    private final AuthService auth = new AuthService();
 
     public Login() {
         setTitle("Login");
@@ -145,12 +146,13 @@ public class Login extends JFrame {
             return;
         }
 
-        if (!UserStorage.validateLogin(username, password)) {
+        User user = auth.signIn(username, password);
+        if (user == null) {
             JOptionPane.showMessageDialog(this, "Incorrect username or password");
             return;
         }
 
-        new calendar_gui().setVisible(true);
+        new calendar_gui(new StudyPlannerApp(user)).setVisible(true);
         dispose();
     }
 

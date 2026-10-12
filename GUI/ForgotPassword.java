@@ -14,6 +14,7 @@ public class ForgotPassword extends JFrame {
     private JTextField usernameField;
     private JPasswordField newPasswordField;
     private JPasswordField confirmField;
+    private final AuthService auth = new AuthService();
 
     public ForgotPassword() {
         setTitle("Forgot Password");
@@ -120,20 +121,19 @@ public class ForgotPassword extends JFrame {
         String newPassword = new String(newPasswordField.getPassword());
         String confirm = new String(confirmField.getPassword());
 
-        if (username.isEmpty() || newPassword.isEmpty() || confirm.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all fields");
-            return;
-        }
-
-        if (!newPassword.equals(confirm)) {
-            JOptionPane.showMessageDialog(this, "The new password fields do not match");
-            return;
-        }
-
-        boolean success = UserStorage.resetPassword(username, newPassword);
-        if (!success) {
-            JOptionPane.showMessageDialog(this, "Username not found");
-            return;
+        switch (auth.resetPassword(username, newPassword, confirm)) {
+            case EMPTY:
+                JOptionPane.showMessageDialog(this, "Please fill in all fields"); return;
+            case MISMATCH:
+                JOptionPane.showMessageDialog(this, "The new password fields do not match"); return;
+            case INVALID_CHARS:
+                JOptionPane.showMessageDialog(this, "Password cannot contain the | character"); return;
+            case NOT_FOUND:
+                JOptionPane.showMessageDialog(this, "Username not found"); return;
+            case ERROR:
+                JOptionPane.showMessageDialog(this, "Could not save the new password. Please try again"); return;
+            default:
+                break;
         }
 
         JOptionPane.showMessageDialog(this, "Password reset successfully! Please sign in with your new password");

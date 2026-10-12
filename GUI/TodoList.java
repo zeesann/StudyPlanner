@@ -2,10 +2,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Study Planner - single file (Java Swing)
@@ -35,9 +32,10 @@ public class TodoList extends JFrame {
     private TodoPage todoPage;
     private static TodoList instance;
     private JFrame calendarFrame;
+    private final StudyPlannerApp app;      // all logic is in here
 
-    static void open(JFrame from) {
-    if (instance == null) instance = new TodoList();
+    static void open(JFrame from, StudyPlannerApp app) {
+    if (instance == null) instance = new TodoList(app);
     instance.calendarFrame = from;
     instance.setVisible(true);
     from.setVisible(false);
@@ -56,7 +54,8 @@ public class TodoList extends JFrame {
     if (instance != null) { instance.dispose(); instance = null; }
 }
 
-    public TodoList() {
+    public TodoList(StudyPlannerApp app) {
+        this.app = app;
         setTitle("Study Planner");
         setSize(600, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -120,46 +119,8 @@ public class TodoList extends JFrame {
     // =====================================================
     //                    To-Do List page
     // =====================================================
-    static class Task {
-        String subject, description;
-        LocalDate deadline;
-        boolean done;
-
-        Task(String subject, String description, LocalDate deadline, boolean done) {
-            this.subject = subject;
-            this.description = description;
-            this.deadline = deadline;
-            this.done = done;
-        }
-    }
-
-    // ---------- All task data, kept in one place (static) so calendar_gui can access it too ----------
-    static final List<Task> tasks = new ArrayList<>();
-    static {
-        tasks.add(new Task("subject1", "Description", LocalDate.now().plusDays(1), false));
-        tasks.add(new Task("subject2", "Description", LocalDate.now().plusDays(5), false));
-        tasks.add(new Task("subject3", "Description", LocalDate.now().minusDays(1), true));
-    }
-
-    // Compute the latest stats from the real tasks -> {total, done, notDone, dueSoon}
-    static int[] getStats() {
-        int total = tasks.size();
-        int done = 0;
-        for (Task t : tasks) if (t.done) done++;
-        int notDone = total - done;
-
-        int dueSoon = 0;
-        for (Task t : tasks) {
-            if (!t.done) {
-                long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), t.deadline);
-                if (daysLeft >= 0 && daysLeft <= 3) dueSoon++; // same threshold as the Soon button on this page
-            }
-        }
-        return new int[]{total, done, notDone, dueSoon};
-    }
-
     class TodoPage extends JPanel {
-        private String filter = "ALL";
+        private StudyPlannerApp.Filter filter = StudyPlannerApp.Filter.ALL;
         private final JPanel listPanel = new JPanel();
         private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -197,10 +158,10 @@ public class TodoList extends JFrame {
             JPanel filters = new JPanel(new GridLayout(1, 4, 10, 0));
             filters.setOpaque(false);
             filters.setPreferredSize(new Dimension(0, 70));
-            filters.add(filterButton("ALL", "ALL", PINK_LINK));
-            filters.add(filterButton("Done", "DONE", GREEN));
-            filters.add(filterButton("<html><center>Not<br>Done</center></html>", "NOT_DONE", RED));
-            filters.add(filterButton("Soon", "SOON", YELLOW));
+            filters.add(filterButton("ALL", StudyPlannerApp.Filter.ALL, PINK_LINK));
+            filters.add(filterButton("Done", StudyPlannerApp.Filter.DONE, GREEN));
+            filters.add(filterButton("<html><center>Not<br>Done</center></html>", StudyPlannerApp.Filter.NOT_DONE, RED));
+            filters.add(filterButton("Soon", StudyPlannerApp.Filter.SOON, YELLOW));
             card.add(filters, BorderLayout.NORTH);
 
             // Pink area + list
@@ -236,7 +197,7 @@ public class TodoList extends JFrame {
             refresh();
         }
 
-        private JButton filterButton(String text, String key, Color color) {
+        private JButton filterButton(String text, StudyPlannerApp.Filter key, Color color) {
             JButton b = new JButton(text);
             b.setFont(FONT_BIG);
             b.setForeground(color);
@@ -249,24 +210,12 @@ public class TodoList extends JFrame {
             return b;
         }
 
-        private boolean matchFilter(Task t) {
-            long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), t.deadline);
-            switch (filter) {
-                case "DONE":     return t.done;
-                case "NOT_DONE": return !t.done;
-                case "SOON":     return !t.done && daysLeft >= 0 && daysLeft <= 3; // within 3 days
-                default:         return true;
-            }
-        }
-
         // Redraw the entire list
         void refresh() {
             listPanel.removeAll();
-            for (Task t : tasks) {
-                if (matchFilter(t)) {
-                    listPanel.add(createRow(t));
-                    listPanel.add(Box.createVerticalStrut(10));
-                }
+            for (Task t : app.getTasks(filter)) {
+                listPanel.add(createRow(t));
+                listPanel.add(Box.createVerticalStrut(10));
             }
             listPanel.revalidate();
             listPanel.repaint();
@@ -283,17 +232,17 @@ public class TodoList extends JFrame {
             cb.setOpaque(false);
             cb.setIcon(new CircleIcon(false));
             cb.setSelectedIcon(new CircleIcon(true));
-            cb.setSelected(t.done);
+            cb.setSelected(t.isDone());
             cb.addActionListener(e -> {
-                t.done = cb.isSelected();
-                if (!filter.equals("ALL")) refresh();
+                app.setDone(t, cb.isSelected());
+                if (filter != StudyPlannerApp.Filter.ALL) refresh();
             });
 
-            JLabel subject = new JLabel(t.subject);
+            JLabel subject = new JLabel(t.getTitle());
             subject.setFont(FONT_BIG);
             subject.setForeground(GRAY_TEXT);
 
-            JLabel desc = new JLabel(t.description);
+            JLabel desc = new JLabel(t.getDescription());
             desc.setFont(FONT_SMALL);
             desc.setForeground(new Color(0x9E, 0x9E, 0x9E));
 
@@ -302,7 +251,7 @@ public class TodoList extends JFrame {
             text.add(subject);
             text.add(desc);
 
-            JLabel deadline = new JLabel(t.deadline.format(fmt));
+            JLabel deadline = new JLabel(t.getDeadline().format(fmt));
             deadline.setFont(FONT_NORM);
             deadline.setForeground(GRAY_TEXT);
 
@@ -314,10 +263,7 @@ public class TodoList extends JFrame {
 
         // Open the Add subject page (our own) and hide this page
         private void openAddSubject() {
-            AddSubject page = new AddSubject(TodoList.this, task -> {
-                tasks.add(task);   // Got a new task from the Add subject page
-                refresh();
-            });
+            AddSubject page = new AddSubject(TodoList.this, app, () -> refresh());
             page.setVisible(true);
             TodoList.this.setVisible(false);
         }
@@ -347,6 +293,6 @@ public class TodoList extends JFrame {
 
     // ---------- main ----------
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TodoList().setVisible(true));
+        SwingUtilities.invokeLater(() -> new TodoList(new StudyPlannerApp(new User("test"))).setVisible(true));
     }
 }

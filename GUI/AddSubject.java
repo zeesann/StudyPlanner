@@ -8,7 +8,6 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
-import java.util.function.Consumer;
 import javax.swing.*;
 
 public class AddSubject extends JFrame {
@@ -19,20 +18,22 @@ public class AddSubject extends JFrame {
     JTextField nameField = new JTextField();
     JTextField descField = new JTextField();
     JTextField deadlineField = new JTextField();
-    JComboBox<String> statusBox = new JComboBox<>(new String[]{"Todo", "In progress", "Complete"});
+    JComboBox<String> statusBox = new JComboBox<>(new String[]{Task.TODO, Task.IN_PROGRESS, Task.COMPLETE});
     LocalDate deadlineDate = null;
 
     TodoList parent;                       // The To-Do page that opened this page
-    Consumer<TodoList.Task> onSave;        // Sends the new task back to the To-Do page
+    StudyPlannerApp app;                   // Logic layer: the task is saved through this
+    Runnable onSaved;                      // Tells the To-Do page to redraw its list
 
     // Used when running this page standalone for testing
     public AddSubject() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public AddSubject(TodoList parent, Consumer<TodoList.Task> onSave) {
+    public AddSubject(TodoList parent, StudyPlannerApp app, Runnable onSaved) {
         this.parent = parent;
-        this.onSave = onSave;
+        this.app = app;
+        this.onSaved = onSaved;
 
         setTitle("Add subject");
         setSize(340, 500);
@@ -104,12 +105,10 @@ public class AddSubject extends JFrame {
             JOptionPane.showMessageDialog(this, "Please select a deadline");
             return;
         }
-        // Complete = done, Todo / In progress = not done
-        boolean done = "Complete".equals(statusBox.getSelectedItem());
-
-        if (onSave != null) {
-            onSave.accept(new TodoList.Task(name, descField.getText().trim(), deadlineDate, done));
+        if (app != null) {
+            app.addTask(name, descField.getText().trim(), deadlineDate, (String) statusBox.getSelectedItem());
         }
+        if (onSaved != null) onSaved.run();
         dispose();   // Close this page -> windowClosed will reopen the To-Do page
     }
 

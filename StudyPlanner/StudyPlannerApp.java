@@ -1,88 +1,125 @@
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Iterator;
- 
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * The "App" layer: all task logic lives here, with NO Swing/AWT.
+ * The GUI pages only call these methods and then redraw themselves.
+ */
 public class StudyPlannerApp {
- 
-    private ArrayList<Task> tasks;
-    private ArrayList<Subject> subjects;
-    private User currentUser;
- 
-    
-    public StudyPlannerApp(User currentUser) {
-        this.currentUser = currentUser;
-        this.tasks = new ArrayList<>();
-        this.subjects = new ArrayList<>();
+
+    public enum Filter { ALL, DONE, NOT_DONE, SOON }
+
+    /** What the calendar should show for one day. */
+    public enum DayStatus { NONE, PENDING, ALL_DONE }
+
+    private final User user;
+    private final StorageService storage;
+    private final List<Task> tasks;
+    private final Dashboard dashboard = new Dashboard();
+
+    /** Each user gets their own task file (tasks_<username>.txt). */
+    public StudyPlannerApp(User user) {
+        this.user = user;
+        this.storage = new StorageService(user.getUsername());
+        this.tasks = storage.loadTasks();
     }
- 
-   
-    public void addTask(Task task) {
-        tasks.add(task);
-        System.out.println("เพิ่มงานแล้ว: " + task.getTitle());
+
+    // ---------- Create / update / delete ----------
+    public Task addTask(String name, String description, LocalDate deadline, String status) {
+        if (name == null || name.trim().isEmpty()) throw new IllegalArgumentException("name is empty");
+        if (deadline == null) throw new IllegalArgumentException("deadline is null");
+
+        Task t = new Task(name.trim(), description == null ? "" : description.trim(),
+                new Subject(name.trim()), deadline);
+        t.setStatus(status);
+        tasks.add(t);
+        save();
+        return t;
     }
- 
-    
-    public void editTask(String title, String newTitle, String newDescription, String newDeadline) {
+
+    public void editTask(Task task, String newTitle, String newDescription, LocalDate newDeadline) {
+        task.editTask(newTitle, newDescription, newDeadline);
+        save();
+    }
+
+    public void setDone(Task task, boolean done) {
+        task.setStatus(done ? Task.COMPLETE : Task.TODO);
+        save();
+    }
+
+    public void toggleStatus(Task task) {
+        task.toggleStatus();
+        save();
+    }
+
+    public boolean deleteTask(Task task) {
+        boolean removed = tasks.remove(task);
+        if (removed) save();
+        return removed;
+    }
+
+    // ---------- Query ----------
+    public List<Task> getTasks() {
+        return Collections.unmodifiableList(tasks);
+    }
+
+    public List<Task> getTasks(Filter filter) {
+        List<Task> result = new ArrayList<>();
         for (Task t : tasks) {
-            if (t.getTitle().equals(title)) {
-                t.editTask(newTitle, newDescription, newDeadline);
-                System.out.println("แก้ไขงานแล้ว: " + title + " -> " + newTitle);
-                return; 
+            boolean ok;
+            switch (filter) {
+                case DONE:     ok = t.isDone(); break;
+                case NOT_DONE: ok = !t.isDone(); break;
+                case SOON:     ok = t.isDueSoon(Dashboard.DUE_SOON_DAYS); break;
+                default:       ok = true;
             }
+            if (ok) result.add(t);
         }
-        System.out.println("ไม่พบงานชื่อ: " + title);
+        return result;
     }
- 
-   
-    public void deleteTask(String title) {
-        Iterator<Task> it = tasks.iterator();
-        while (it.hasNext()) {
-            Task t = it.next();
-            if (t.getTitle().equals(title)) {
-                it.remove(); 
-                System.out.println("ลบงานแล้ว: " + title);
-                return;
-            }
-        }
-        System.out.println("ไม่พบงานชื่อ: " + title);
-    }
- 
-   
-    public ArrayList<Task> searchTasks(String keyword) {
-        ArrayList<Task> result = new ArrayList<>();
+
+    public List<Task> searchTasks(String keyword) {
+        String k = keyword.toLowerCase();
+        List<Task> result = new ArrayList<>();
         for (Task t : tasks) {
-            boolean inTitle = t.getTitle().toLowerCase().contains(keyword.toLowerCase());
-            boolean inDescription = t.getDescription().toLowerCase().contains(keyword.toLowerCase());
-            if (inTitle || inDescription) {
+            if (t.getTitle().toLowerCase().contains(k) || t.getDescription().toLowerCase().contains(k)) {
                 result.add(t);
             }
         }
         return result;
     }
- 
-    public ArrayList<Task> filterByStatus(String status) {
-        ArrayList<Task> result = new ArrayList<>();
+
+    public List<Task> getTasksByDate(LocalDate date) {
+        List<Task> result = new ArrayList<>();
         for (Task t : tasks) {
-            if (t.getStatus().equals(status)) {
-                result.add(t);
-            }
+            if (t.getDeadline().equals(date)) result.add(t);
         }
         return result;
     }
- 
-    
-    public ArrayList<Task> getTasks() {
-        return tasks;
+
+    /** NONE = no task due that day, PENDING = at least one unfinished task, ALL_DONE = every task that day is complete. */
+    public DayStatus getDayStatus(LocalDate date) {
+        boolean any = false;
+        for (Task t : tasks) {
+            if (t.getDeadline().equals(date)) {
+                if (!t.isDone()) return DayStatus.PENDING;
+                any = true;
+            }
+        }
+        return any ? DayStatus.ALL_DONE : DayStatus.NONE;
     }
- 
-    public void setTasks(ArrayList<Task> tasks) {
-        this.tasks = tasks; 
+
+    /** Fresh numbers for the calendar summary. */
+    public Dashboard getStats() {
+        dashboard.computeStats(tasks);
+        return dashboard;
     }
- 
-    public ArrayList<Subject> getSubjects() {
-        return subjects;
-    }
- 
-    public User getCurrentUser() {
-        return currentUser;
+
+    public User getCurrentUser() { return user; }
+
+    private void save() {
+        storage.saveTasks(tasks);
     }
 }
