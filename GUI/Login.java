@@ -152,7 +152,7 @@ public class Login extends JFrame {
             return;
         }
 
-        new calendar_gui(new StudyPlannerApp(user)).setVisible(true);
+        new CalendarGUI(new StudyPlannerApp(user)).setVisible(true);
         dispose();
     }
 

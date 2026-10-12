@@ -15,6 +15,9 @@ public class AddSubject extends JFrame {
     static final Color PINK = new Color(240, 143, 179);
     static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    // ฟอนต์ที่แสดงภาษาไทยได้ (ใช้กับช่องกรอกทุกช่อง)
+    static final Font THAI_FONT = new Font("Tahoma", Font.PLAIN, 14);
+
     JTextField nameField = new JTextField();
     JTextField descField = new JTextField();
     JTextField deadlineField = new JTextField();
@@ -52,6 +55,12 @@ public class AddSubject extends JFrame {
             });
         }
 
+        // ตั้งฟอนต์ไทยให้ช่องกรอก เพื่อให้พิมพ์และแสดงภาษาไทยได้
+        nameField.setFont(THAI_FONT);
+        descField.setFont(THAI_FONT);
+        deadlineField.setFont(THAI_FONT);
+        statusBox.setFont(THAI_FONT);
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -65,7 +74,7 @@ public class AddSubject extends JFrame {
         // Deadline = text field (read only) + calendar button
         deadlineField.setEditable(false);
         deadlineField.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        JButton calBtn = new JButton("\uD83D\uDCC5");
+        JButton calBtn = new JButton("📅");
         JPanel deadlinePanel = new JPanel(new BorderLayout(5, 0));
         deadlinePanel.setOpaque(false);
         deadlinePanel.add(deadlineField, BorderLayout.CENTER);

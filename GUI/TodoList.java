@@ -35,29 +35,29 @@ public class TodoList extends JFrame {
     private final StudyPlannerApp app;      // all logic is in here
 
     static void open(JFrame from, StudyPlannerApp app) {
-    if (instance == null) instance = new TodoList(app);
-    instance.calendarFrame = from;
-    instance.setVisible(true);
-    from.setVisible(false);
-}
+        if (instance == null) instance = new TodoList(app);
+        instance.calendarFrame = from;
+        instance.setVisible(true);
+        from.setVisible(false);
+    }
 
     // Go back to the Calendar page (the Calendar page was hidden when opened)
     void goBack() {
-        if (calendarFrame instanceof calendar_gui) {
-            ((calendar_gui) calendarFrame).refreshSummary(); // Update the numbers before showing it again
+        if (calendarFrame instanceof CalendarGUI) {
+            ((CalendarGUI) calendarFrame).refreshSummary(); // Update the numbers before showing it again
         }
         if (calendarFrame != null) calendarFrame.setVisible(true);
         setVisible(false);
     }
 
     static void reset() {
-    if (instance != null) { instance.dispose(); instance = null; }
-}
+        if (instance != null) { instance.dispose(); instance = null; }
+    }
 
     public TodoList(StudyPlannerApp app) {
         this.app = app;
         setTitle("Study Planner");
-        setSize(600, 800);
+        setSize(487, 802);                       // same size as calendar_gui
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -127,7 +127,7 @@ public class TodoList extends JFrame {
         TodoPage() {
             setBackground(BG);
             setLayout(new BorderLayout());
-            setBorder(new EmptyBorder(10, 20, 20, 20));
+            setBorder(new EmptyBorder(10, 10, 15, 10));
 
             // ---- Header: To-Do List ----
             JPanel header = new JPanel();
@@ -151,13 +151,13 @@ public class TodoList extends JFrame {
             // ---- White card ----
             JPanel card = new JPanel(new BorderLayout(0, 15));
             card.setBackground(Color.WHITE);
-            card.setBorder(new EmptyBorder(15, 15, 15, 15));
+            card.setBorder(new EmptyBorder(10, 10, 10, 10));
             add(card, BorderLayout.CENTER);
 
             // Filter buttons
             JPanel filters = new JPanel(new GridLayout(1, 4, 10, 0));
             filters.setOpaque(false);
-            filters.setPreferredSize(new Dimension(0, 70));
+            filters.setPreferredSize(new Dimension(0, 60));
             filters.add(filterButton("ALL", StudyPlannerApp.Filter.ALL, PINK_LINK));
             filters.add(filterButton("Done", StudyPlannerApp.Filter.DONE, GREEN));
             filters.add(filterButton("<html><center>Not<br>Done</center></html>", StudyPlannerApp.Filter.NOT_DONE, RED));
@@ -167,7 +167,7 @@ public class TodoList extends JFrame {
             // Pink area + list
             JPanel pinkArea = new JPanel(new BorderLayout(0, 10));
             pinkArea.setBackground(PINK_AREA);
-            pinkArea.setBorder(new EmptyBorder(15, 15, 15, 15));
+            pinkArea.setBorder(new EmptyBorder(10, 10, 10, 10));
 
             listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
             listPanel.setBackground(PINK_AREA);
@@ -176,15 +176,16 @@ public class TodoList extends JFrame {
             scroll.setBorder(null);
             scroll.getViewport().setBackground(PINK_AREA);
             scroll.getVerticalScrollBar().setUnitIncrement(16);
+            scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             pinkArea.add(scroll, BorderLayout.CENTER);
 
             // Add subject button
             JButton add = new JButton("Add subject");
-            add.setFont(FONT_BIG);
+            add.setFont(FONT_BIG.deriveFont(16f));
             add.setForeground(GRAY_TEXT);
             add.setBackground(Color.WHITE);
             add.setFocusPainted(false);
-            add.setBorder(new EmptyBorder(10, 30, 10, 30));
+            add.setBorder(new EmptyBorder(10, 24, 10, 24));
             add.addActionListener(e -> openAddSubject());
 
             JPanel addWrap = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -199,7 +200,7 @@ public class TodoList extends JFrame {
 
         private JButton filterButton(String text, StudyPlannerApp.Filter key, Color color) {
             JButton b = new JButton(text);
-            b.setFont(FONT_BIG);
+            b.setFont(FONT_BIG.deriveFont(16f));
             b.setForeground(color);
             b.setBackground(new Color(0xF5, 0xF5, 0xF5));
             b.setFocusPainted(false);
@@ -222,9 +223,9 @@ public class TodoList extends JFrame {
         }
 
         private JPanel createRow(Task t) {
-            JPanel row = new JPanel(new BorderLayout(15, 0));
+            JPanel row = new JPanel(new BorderLayout(10, 0));
             row.setBackground(Color.WHITE);
-            row.setBorder(new EmptyBorder(12, 15, 12, 15));
+            row.setBorder(new EmptyBorder(10, 10, 10, 10));
             row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
 
             // Circular checkbox
@@ -235,16 +236,18 @@ public class TodoList extends JFrame {
             cb.setSelected(t.isDone());
             cb.addActionListener(e -> {
                 app.setDone(t, cb.isSelected());
-                if (filter != StudyPlannerApp.Filter.ALL) refresh();
+                SwingUtilities.invokeLater(() -> refresh());   // วาดใหม่ ให้ช่อง Status ตรงกับวงกลม
             });
 
             JLabel subject = new JLabel(t.getTitle());
-            subject.setFont(FONT_BIG);
+            subject.setFont(FONT_BIG.deriveFont(15f));
             subject.setForeground(GRAY_TEXT);
+            subject.setToolTipText(t.getTitle());              // เผื่อชื่อยาวถูกตัด
 
             JLabel desc = new JLabel(t.getDescription());
-            desc.setFont(FONT_SMALL);
+            desc.setFont(FONT_SMALL.deriveFont(11f));
             desc.setForeground(new Color(0x9E, 0x9E, 0x9E));
+            desc.setToolTipText(t.getDescription());
 
             JPanel text = new JPanel(new GridLayout(2, 1));
             text.setOpaque(false);
@@ -252,12 +255,31 @@ public class TodoList extends JFrame {
             text.add(desc);
 
             JLabel deadline = new JLabel(t.getDeadline().format(fmt));
-            deadline.setFont(FONT_NORM);
+            deadline.setFont(FONT_SMALL.deriveFont(Font.BOLD));
             deadline.setForeground(GRAY_TEXT);
+
+            // ช่องเลือกสถานะ (Todo / In Progress / Complete)
+            JComboBox<String> statusBox = new JComboBox<>(
+                    new String[]{Task.TODO, Task.IN_PROGRESS, Task.COMPLETE});
+            statusBox.setFont(FONT_SMALL);
+            statusBox.setPreferredSize(new Dimension(105, 26));
+            statusBox.setSelectedItem(t.getStatus());
+            statusBox.addActionListener(e -> {
+                app.setStatus(t, (String) statusBox.getSelectedItem());
+                SwingUtilities.invokeLater(() -> refresh());   // วาดรายการใหม่
+            });
+
+            // สถานะกับวันที่อยู่บรรทัดเดียวกัน ทางด้านขวา
+            JPanel right = new JPanel(new GridBagLayout());
+            right.setOpaque(false);
+            GridBagConstraints c = new GridBagConstraints();
+            c.insets = new Insets(0, 3, 0, 3);
+            right.add(statusBox, c);
+            right.add(deadline, c);
 
             row.add(cb, BorderLayout.WEST);
             row.add(text, BorderLayout.CENTER);
-            row.add(deadline, BorderLayout.EAST);
+            row.add(right, BorderLayout.EAST);
             return row;
         }
 

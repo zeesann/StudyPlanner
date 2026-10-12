@@ -5,7 +5,6 @@
 Subject (แยกวิชา)
 Task status (Todo/In progress/Complete)
 Data storage (เก็บ/โหลดข้อมูล)
-Test
 
 สิทธิตรา พิชัยชม 6821601526
 
@@ -18,4 +17,3 @@ Add task (ฟอร์มเพิ่ม/แก้ไข)
 
 Calendar (จุดสีแสดงงาน)
 Search and filter
-Reminder (แจ้งเตือน email)

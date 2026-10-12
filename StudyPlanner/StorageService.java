@@ -1,10 +1,12 @@
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /** All users' tasks live in ONE file (tasks.txt).
- *  One line = username|title|description|subject|yyyy-MM-dd|status */
+ *  One line = username|title|description|subject|yyyy-MM-dd|status
+ *  ไฟล์นี้อ่าน/เขียนแบบ UTF-8 เพื่อให้เก็บภาษาไทยได้ไม่เพี้ยน */
 public class StorageService {
 
     private static final String FILE_NAME = "tasks.txt";
@@ -18,12 +20,22 @@ public class StorageService {
         return s == null ? "" : s.replace("|", " ").replace("\r", " ").replace("\n", " ");
     }
 
+    // เปิดไฟล์สำหรับอ่านแบบ UTF-8
+    private static BufferedReader openReader(File file) throws IOException {
+        return new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+    }
+
+    // เปิดไฟล์สำหรับเขียนแบบ UTF-8 (เขียนทับของเดิมทั้งไฟล์)
+    private static Writer openWriter() throws IOException {
+        return new OutputStreamWriter(new FileOutputStream(FILE_NAME, false), StandardCharsets.UTF_8);
+    }
+
     public void saveTasks(List<Task> tasks) {
         // 1) keep lines that belong to other users
         List<String> others = new ArrayList<>();
         File file = new File(FILE_NAME);
         if (file.exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            try (BufferedReader reader = openReader(file)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] p = line.split("\\|", -1);
@@ -36,7 +48,7 @@ public class StorageService {
         }
 
         // 2) write others + this user's tasks
-        try (FileWriter writer = new FileWriter(FILE_NAME, false)) {
+        try (Writer writer = openWriter()) {
             for (String line : others) writer.write(line + "\n");
             for (Task t : tasks) {
                 writer.write(clean(username) + "|"
@@ -56,7 +68,7 @@ public class StorageService {
         File file = new File(FILE_NAME);
         if (!file.exists()) return tasks;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = openReader(file)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] p = line.split("\\|", -1);
