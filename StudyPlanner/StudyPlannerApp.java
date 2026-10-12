@@ -49,6 +49,12 @@ public class StudyPlannerApp {
         save();
     }
 
+    // เปลี่ยน Status เป็นค่าที่เลือก (Todo / In Progress / Complete) แล้วบันทึกลงไฟล์
+    public void setStatus(Task task, String status) {
+        task.setStatus(status);
+        save();
+    }
+
     public void toggleStatus(Task task) {
         task.toggleStatus();
         save();
