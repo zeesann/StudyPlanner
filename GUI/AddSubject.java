@@ -24,7 +24,7 @@ public class AddSubject extends JFrame {
     JComboBox<String> statusBox = new JComboBox<>(new String[]{Task.TODO, Task.IN_PROGRESS, Task.COMPLETE});
     LocalDate deadlineDate = null;
 
-    TodoList parent;                       // The To-Do page that opened this page
+    JFrame parent;                         // The page (To-Do or Calendar) that opened this page
     StudyPlannerApp app;                   // Logic layer: the task is saved through this
     Runnable onSaved;                      // Tells the To-Do page to redraw its list
 
@@ -33,7 +33,12 @@ public class AddSubject extends JFrame {
         this(null, null, null);
     }
 
-    public AddSubject(TodoList parent, StudyPlannerApp app, Runnable onSaved) {
+    public AddSubject(JFrame parent, StudyPlannerApp app, Runnable onSaved) {
+        this(parent, app, onSaved, null);
+    }
+
+    // initialDate = deadline to pre-fill (e.g. the day selected on the calendar), or null
+    public AddSubject(JFrame parent, StudyPlannerApp app, Runnable onSaved, LocalDate initialDate) {
         this.parent = parent;
         this.app = app;
         this.onSaved = onSaved;
@@ -60,6 +65,11 @@ public class AddSubject extends JFrame {
         descField.setFont(THAI_FONT);
         deadlineField.setFont(THAI_FONT);
         statusBox.setFont(THAI_FONT);
+
+        if (initialDate != null) {
+            deadlineDate = initialDate;
+            deadlineField.setText(initialDate.format(FMT));
+        }
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
