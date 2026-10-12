@@ -28,13 +28,9 @@ public class  CalendarGUI extends JFrame {
     static final Font BOLD = new Font("SansSerif", Font.BOLD, 16);
 
     // ---------- Data ----------
-    YearMonth current = YearMonth.of(2025, 9);
-    LocalDate rangeStart = LocalDate.of(2025, 9, 9);
-    LocalDate rangeEnd   = LocalDate.of(2025, 9, 13);
-    final Set<LocalDate> taskDays = new HashSet<>(Arrays.asList(
-            LocalDate.of(2025, 9, 10), LocalDate.of(2025, 9, 18),
-            LocalDate.of(2025, 9, 25), LocalDate.of(2025, 9, 26),
-            LocalDate.of(2025, 9, 30)));
+    YearMonth current = YearMonth.now();
+    LocalDate rangeStart = LocalDate.now();
+    LocalDate rangeEnd   = LocalDate.now();
 
     int allWork, done, notDone, dueSoon; // actual values are pulled from TodoList.getStats() in refreshSummary()
 
@@ -144,9 +140,36 @@ public class  CalendarGUI extends JFrame {
         grid.setOpaque(false);
         card.add(grid, BorderLayout.CENTER);
 
+        // Legend + "add task" button under the calendar
+        JButton addBtn = new JButton("+ add task");
+        addBtn.setFont(BOLD);
+        addBtn.setForeground(Color.WHITE);
+        addBtn.setBackground(PINK);
+        addBtn.setOpaque(true);
+        addBtn.setBorderPainted(false);
+        addBtn.setFocusPainted(false);
+        addBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        addBtn.addActionListener(e -> openAddTask());
+
+        JLabel legend = new JLabel("<html><span style='color:#E81B1B'>&#9679;</span> not done &nbsp;&nbsp;"
+                + "<span style='color:#00C800'>&#9679;</span> all done</html>");
+        legend.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        legend.setForeground(new Color(0x888888));
+
+        JPanel bottom = new JPanel(new BorderLayout(0, 8));
+        bottom.setOpaque(false);
+        bottom.setBorder(new EmptyBorder(12, 0, 0, 0));
+        bottom.add(legend, BorderLayout.NORTH);
+        bottom.add(addBtn, BorderLayout.CENTER);
+
+        JPanel cardWrap = new JPanel(new BorderLayout());
+        cardWrap.setOpaque(false);
+        cardWrap.add(card, BorderLayout.NORTH);
+        cardWrap.add(bottom, BorderLayout.CENTER);
+
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setOpaque(false);
-        wrap.add(card, BorderLayout.NORTH);
+        wrap.add(cardWrap, BorderLayout.NORTH);
         center.add(wrap, BorderLayout.CENTER);
         return center;
     }
@@ -234,6 +257,15 @@ public class  CalendarGUI extends JFrame {
             g.drawString(s, (getWidth() - fm.stringWidth(s)) / 2,
                     (getHeight() - 2 - fm.getHeight()) / 2 + fm.getAscent());
 
+            // Status dot: red = has unfinished task, green = every task that day is done
+            if (inMonth) {
+                StudyPlannerApp.DayStatus st = app.getDayStatus(date);
+                if (st != StudyPlannerApp.DayStatus.NONE) {
+                    g.setColor(st == StudyPlannerApp.DayStatus.PENDING ? RED : GREEN);
+                    g.fillOval(getWidth() / 2 - 3, getHeight() - 11, 7, 7);
+                }
+            }
+
             g.dispose();
         }
     }
@@ -251,6 +283,16 @@ public class  CalendarGUI extends JFrame {
             pickingEnd = false;
         }
         grid.repaint();
+    }
+
+    // Open the Add subject page with the selected day as the deadline
+    void openAddTask() {
+        AddSubject page = new AddSubject(this, app, () -> {
+            rebuildCalendar();      // redraw the status dots
+            refreshSummary();       // update the 4 numbers
+        }, rangeStart);
+        page.setVisible(true);
+        setVisible(false);          // AddSubject shows this page again when it closes
     }
 
     // The 4 number labels, stored as fields so refreshSummary() can update their text later
@@ -313,6 +355,7 @@ public class  CalendarGUI extends JFrame {
         lblDone.setText(String.valueOf(done));
         lblNotDone.setText(String.valueOf(notDone));
         lblDueSoon.setText(String.valueOf(dueSoon));
+        grid.repaint();   // status dots may have changed
     }
 
     // ---------- main ----------
