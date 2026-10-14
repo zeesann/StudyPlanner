@@ -1,13 +1,1 @@
-v|rf24tt|vere|rf24tt|2026-10-14|Todo
-d|g3ge43|vtreh3|g3ge43|2026-10-13|Todo
-zeesann|ซอฟแวร์|ช่วยด้วยแมาจ๋า ยากจัง จะตายแล้ว|ซอฟแวร์|2026-10-15|In Progress
-test|้ิวิชาสุดโหด|คนกากๆทำ|้ิวิชาสุดโหด|2026-10-15|Complete
-test|lalala|bababa|lalala|2026-10-31|Complete
-test|todo|dopu|todo|2026-10-15|Todo
-ice|อาจารต่อ|พรีเส้นที่เรารัก|อาจารต่อ|2026-10-15|Todo
-ice|สอบอาจารชิง|สอบ|สอบอาจารชิง|2026-10-21|Todo
-ice|ethergerg|wrwsefewf|ethergerg|2026-10-20|Complete
-ice|wetertawwrat||wetertawwrat|2026-10-22|Complete
-ice|sfsdfsfse|adsdfefaf|sfsdfsfse|2026-10-22|Complete
-ice|soljdfovsj'dlj;lsj|s/dlkvlskkf|soljdfovsj'dlj;lsj|2026-10-22|Todo
-ice|ผ่าามดากากาหกนว่|หกกอหกอหด|ผ่าามดากากาหกนว่|2026-10-24|Todo
+zeesann|123|321|123|2026-10-15|Complete
