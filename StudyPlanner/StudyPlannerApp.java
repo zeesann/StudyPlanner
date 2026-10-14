@@ -7,6 +7,7 @@ import java.util.List;
  * The "App" layer: all task logic lives here, with NO Swing/AWT.
  * The GUI pages only call these methods and then redraw themselves.
  */
+
 public class StudyPlannerApp {
 
     public enum Filter { ALL, DONE, NOT_DONE, SOON }
