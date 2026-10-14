@@ -1,67 +1,70 @@
 import java.time.LocalDate;
 import java.time.YearMonth;
  
-/**
- * Calendar logic (no GUI here).
- * It remembers which month is shown and which day is selected,
- * and it does all the date calculations for CalendarGUI.
- */
+
 public class Calendar {
  
-    private YearMonth month;                            // the month that is shown
-    private LocalDate selectedDate = LocalDate.now();   // the day that was clicked
+    private YearMonth month;                            // เดือนที่กำลังโชว์ (เก็บทั้งปีและเดือน)
+    private LocalDate selectedDate = LocalDate.now();   // วันที่ถูกคลิกเลือก เริ่มที่วันนี้
  
-    // Start at the current month
+    // เริ่มต้นที่เดือนปัจจุบัน
     public Calendar() {
         this.month = YearMonth.now();
     }
  
-    // ---------- Month ----------
+    // เดินหน้า 1 เดือน
     public void nextMonth() {
         month = month.plusMonths(1);
     }
  
+    // ถอยหลัง 1 เดือน
     public void prevMonth() {
         month = month.minusMonths(1);
     }
  
+    // กระโดดไปเดือนและปีที่ระบุ
     public void setMonth(int year, int monthNumber) {
         month = YearMonth.of(year, monthNumber);
     }
  
+    // ขอปีที่โชว์อยู่
     public int getYear() {
         return month.getYear();
     }
  
+    // ขอเลขเดือนที่โชว์อยู่
     public int getMonthNumber() {
-        return month.getMonthValue();       // 1 = January, 12 = December
+        return month.getMonthValue();       // 1 = มกราคม, 12 = ธันวาคม
     }
  
-    // ---------- Days in the grid ----------
+    // เดือนนี้มีกี่วัน
     public int getDaysInMonth() {
         return month.lengthOfMonth();
     }
  
-    // How many blank cells come before day 1 (Sunday = 0)
+    // มีช่องว่างกี่ช่องก่อนวันที่ 1 (อาทิตย์ = 0)
+    // จันทร์ = 1 ... อาทิตย์ = 7 แล้ว % 7 ทำให้อาทิตย์เป็น 0
     public int getBlankDays() {
         return month.atDay(1).getDayOfWeek().getValue() % 7;
     }
  
-    // Total cells in the grid (always full weeks of 7)
+    // จำนวนช่องทั้งหมดในตาราง (ปัดให้เต็มสัปดาห์ละ 7 ช่องเสมอ)
     public int getTotalCells() {
         return (int) Math.ceil((getBlankDays() + getDaysInMonth()) / 7.0) * 7;
     }
  
-    // The date of a day number in this month
+    // ขอวันที่เต็มจากเลขวัน เช่น วันที่ 5 ของเดือนนี้
     public LocalDate getDate(int dayNum) {
         return month.atDay(dayNum);
     }
  
-    // ---------- Selected day ----------
+    
+    // ขอวันที่ถูกเลือกอยู่
     public LocalDate getSelectedDate() {
         return selectedDate;
     }
  
+    // จำว่าวันนี้ถูกเลือก
     public void setSelectedDate(LocalDate date) {
         selectedDate = date;
     }
