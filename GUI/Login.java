@@ -7,13 +7,13 @@ import javax.swing.border.*;
 
 public class Login extends JFrame {
 
-    // ===== สีกับฟอนต์ที่ใช้ในหน้านี้ =====
-    private static final Color BG        = new Color(253, 244, 253); // สีพื้นหลังหน้าต่าง (ชมพูอ่อนมาก)
-    private static final Color DARK_PINK = new Color(155, 45, 115);  // ชมพูเข้ม ใช้กับหัวข้อและป้าย USERNAME/PASSWORD
-    private static final Color PINK      = new Color(232, 110, 180); // ชมพูสว่าง ใช้กับคำบรรยายและตัวหนังสือบนปุ่ม
-    private static final Color BTN_BG    = new Color(250, 225, 245); // สีพื้นปุ่ม Sign in
-    private static final Color LAVENDER  = new Color(212, 193, 247); // สีม่วงอ่อนของวงกลมรูปคน
-    private static final Font  BOLD      = new Font("Tahoma", Font.BOLD, 14); // ฟอนต์ตัวหนาที่ใช้บ่อย
+    // สีกับฟอนต์ที่ใช้ในหน้านี้
+    private static final Color BG        = new Color(253, 244, 253); 
+    private static final Color DARK_PINK = new Color(155, 45, 115);  
+    private static final Color PINK      = new Color(232, 110, 180); 
+    private static final Color BTN_BG    = new Color(250, 225, 245);
+    private static final Color LAVENDER  = new Color(212, 193, 247);
+    private static final Font  BOLD      = new Font("Tahoma", Font.BOLD, 14);
 
     // เก็บช่องกรอกไว้เป็นตัวแปรของคลาส เพราะตอนกดปุ่ม Sign in
     // เราต้องย้อนกลับมาอ่านว่าผู้ใช้พิมพ์อะไรไว้
@@ -25,20 +25,20 @@ public class Login extends JFrame {
 
     //  ทำงานตอนสร้างหน้า Login ขึ้นมา มีหน้าที่ตั้งค่าหน้าต่าง
     public Login() {
-        setTitle("Login");                       // ข้อความบนแถบหัวหน้าต่าง
-        setSize(420, 720);                       // ขนาดหน้าต่าง กว้าง 420 สูง 720
-        setDefaultCloseOperation(EXIT_ON_CLOSE); // กดกากบาทแล้วปิดโปรแกรมทั้งตัวเลย
-        setLocationRelativeTo(null);             // ให้หน้าต่างเด้งขึ้นกลางจอ
+        setTitle("Login");                       
+        setSize(420, 720);                       
+        setDefaultCloseOperation(EXIT_ON_CLOSE); 
+        setLocationRelativeTo(null);             
 
-        // พื้นหลังสีชมพูอ่อน ใช้ GridBagLayout 
-        // "วางไว้ตรงกลาง" ให้อัตโนมัติ 
+        // พื้นหลังใช้ GridBagLayout 
+        // วางไว้ตรงกลาง ให้อัตโนมัติ 
         JPanel background = new JPanel(new GridBagLayout());
         background.setBackground(BG);
         background.add(createCard());            // เอาการ์ดสีขาวใส่เข้าไป
         setContentPane(background);              // ตั้งให้พื้นหลังนี้เป็นเนื้อหาของหน้าต่าง
     }
 
-    // ===== สร้างการ์ดสีขาวตรงกลาง (ตัวหลักของหน้าจอ) =====
+    //สร้างการ์ดสีขาวตรงกลาง
     private JPanel createCard() {
 
         JPanel card = new JPanel() {
@@ -47,7 +47,7 @@ public class Login extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create(); 
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // ทำให้ขอบเนียน ไม่หยัก
 
-                // วาดเงา: วาดสี่เหลี่ยมมุมมนสีดำจางๆ ซ้อนกัน 8 ชั้น แต่ละชั้นใหญ่กว่าชั้นก่อนนิดนึง
+                // วาดเงา วาดสี่เหลี่ยมมุมมนสีดำจางๆ ซ้อนกัน 8 ชั้น แต่ละชั้นใหญ่กว่าชั้นก่อนนิดนึง
                 for (int i = 8; i > 0; i--) {
                     g2.setColor(new Color(0, 0, 0, 6)); 
                     g2.fillRoundRect(8 - i, 10 - i, getWidth() - 16 + i * 2, getHeight() - 16 + i * 2, 16, 16);
@@ -59,7 +59,7 @@ public class Login extends JFrame {
                 g2.dispose(); 
             }
         };
-        card.setOpaque(false); // บอกว่าไม่ต้องทาพื้นให้ เพราะเราวาดเองแล้ว (ไม่งั้นมุมมนจะมีสี่เหลี่ยมโผล่)
+        card.setOpaque(false); // บอกว่าไม่ต้องทาพื้นให้ ไม่งั้นมุมมนจะมีสี่เหลี่ยมโผล่
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS)); // เรียงของในการ์ดจากบนลงล่าง
         card.setBorder(new EmptyBorder(30, 40, 30, 40));       // เว้นที่ว่างขอบใน ไม่ให้ของชิดขอบการ์ด
         card.setPreferredSize(new Dimension(340, 560));        // ขนาดการ์ด
@@ -67,11 +67,11 @@ public class Login extends JFrame {
         // ต่อจากนี้คือเอาของใส่การ์ดทีละชิ้นตามลำดับบนลงล่าง
         // Box.createVerticalStrut(n) คือช่องว่างแนวตั้ง n พิกเซลไว้ขั้นระหว่างชิ้น
 
-        // --- รูปคนวงกลม ---
+        // รูปคนวงกลม
         card.add(centered(new AvatarIcon()));
         card.add(Box.createVerticalStrut(15));
 
-        // --- ข้อความ WELCOME ! กับบรรทัดเล็ก ---
+        // ข้อความ WELCOME กับบรรทัดเล็ก
         JLabel welcome = new JLabel("WELCOME !");
         welcome.setFont(new Font("Tahoma", Font.BOLD, 16));
         welcome.setForeground(DARK_PINK); // setForeground = ตั้งสีตัวหนังสือ
@@ -84,14 +84,14 @@ public class Login extends JFrame {
         card.add(centered(subtitle));
         card.add(Box.createVerticalStrut(30));
 
-        // --- ช่องกรอก Username ---
+        // ช่องกรอก Username
         card.add(left(makeLabel("USERNAME"))); // ป้ายข้อความชิดซ้าย
         card.add(Box.createVerticalStrut(6));
         usernameField = new JTextField();
         card.add(field(usernameField));        // field() คือเมธอดช่วยแต่งช่องกรอก 
         card.add(Box.createVerticalStrut(20));
 
-        // --- ช่องกรอก Password ---
+        // ช่องกรอก Password
         // JPasswordField พิมพ์แล้วขึ้นเป็นจุด ไม่โชว์ตัวอักษรจริง
         card.add(left(makeLabel("PASSWORD")));
         card.add(Box.createVerticalStrut(6));
@@ -99,7 +99,7 @@ public class Login extends JFrame {
         card.add(field(passwordField));
         card.add(Box.createVerticalStrut(8));
 
-        // --- ลิงก์ forgot password --- ข้อความธรรมดา JLabel ทำให้คลิกได้
+        // ลิงก์ forgot password ข้อความธรรมดา JLabel ทำให้คลิกได้
         JLabel forgot = new JLabel("forgot password?");
         forgot.setFont(new Font("Tahoma", Font.BOLD, 10));
         forgot.setForeground(DARK_PINK);
@@ -107,25 +107,24 @@ public class Login extends JFrame {
         forgot.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) { // ทำงานตอนมีคนคลิก
                 new ForgotPassword().setVisible(true); // เปิดหน้าลืมรหัสผ่าน
-                dispose();                             // ปิดหน้า Login นี้ทิ้ง
+                dispose();                             // ปิดหน้า
             }
         });
         card.add(right(forgot)); // ชิดขวา
         card.add(Box.createVerticalStrut(20));
 
-        // --- ปุ่ม Sign in ---
+        //ปุ่ม Sign in 
         JButton signIn = new JButton("Sign in");
         signIn.setFont(BOLD);
         signIn.setForeground(PINK);
         signIn.setBackground(BTN_BG);
-        signIn.setOpaque(true);        // ต้องสั่งอันนี้ สีพื้นปุ่มถึงจะขึ้นจริง (บางธีมจะไม่ยอมโชว์สี)
+        signIn.setOpaque(true);        // ต้องสั่งอันนี้ สีพื้นปุ่มถึงจะขึ้นจริง
         signIn.setFocusPainted(false); // ปิดกรอบเส้นประที่ขึ้นรอบตัวหนังสือบนปุ่มตอนถูกเลือก เพราะไม่สวย
-        signIn.setBorder(new LineBorder(new Color(235, 200, 230), 1)); // ขอบบางๆ สีชมพูอ่อน
+        signIn.setBorder(new LineBorder(new Color(235, 200, 230), 1)); 
         signIn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         signIn.addActionListener(e -> handleSignIn()); // กดปุ่มแล้วไปเรียก handleSignIn() ข้างล่าง
 
-        // เอาปุ่มใส่กล่องก่อนแล้วจำกัดความสูงไว้ 38
-        // ถ้าไม่ทำ BoxLayout จะยืดปุ่มให้สูงผิดสัดส่วน
+        // เอาปุ่มใส่กล่องก่อนแล้วจำกัดความสูงไว้ 38 ถ้าไม่ทำ BoxLayout จะยืดปุ่มให้สูงผิดสัดส่วน
         JPanel btnWrap = new JPanel(new BorderLayout());
         btnWrap.setOpaque(false);
         btnWrap.add(signIn);
@@ -133,14 +132,14 @@ public class Login extends JFrame {
         card.add(btnWrap);
         card.add(Box.createVerticalStrut(25));
 
-        // --- เส้นคั่นบางๆ ---
+        // เส้นคั่นบางๆ
         JSeparator sep = new JSeparator();
         sep.setForeground(new Color(225, 225, 225));
         sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
         card.add(sep);
         card.add(Box.createVerticalStrut(20));
 
-        // --- ลิงก์ create an account --- ปิดหน้าสมัครสมาชิก
+        //create an account 
         JLabel create = new JLabel("create an account");
         create.setFont(BOLD);
         create.setForeground(PINK);
@@ -158,9 +157,9 @@ public class Login extends JFrame {
         return card;
     }
 
-    // ===== ทำงานตอนกด Sign in =====
+    // ทำงานตอนกด Sign in
     private void handleSignIn() {
-        String username = usernameField.getText().trim(); // trim() ตัดช่องว่างหน้าหลังทิ้ง เผื่อเผลอเคาะสเปซ
+        String username = usernameField.getText().trim(); // ตัดช่องว่างหน้าหลังทิ้ง เผื่อเผลอเคาะสเปซ
         String password = new String(passwordField.getPassword()); // ช่องรหัสผ่านให้ค่ามาเป็น char[] เลยแปลงเป็นข้อความ
 
         // ถ้ายังไม่กรอกอะไรสักช่อง ก็เด้งเตือนแล้วจบเลย
@@ -169,20 +168,19 @@ public class Login extends JFrame {
             return; // return = ออกจากเมธอดทันที โค้ดข้างล่างจะไม่ถูกรัน
         }
 
-        // ส่งให้ AuthService ช่วยเช็ค ถ้าถูกจะได้ข้อมูลผู้ใช้กลับมา ถ้าผิดจะได้ null แปลว่า "ไม่มี"
+        // ส่งให้ AuthService ช่วยเช็ค ถ้าถูกจะได้ข้อมูลผู้ใช้กลับมา ถ้าผิดจะได้ null
         User user = auth.signIn(username, password);
         if (user == null) {
             JOptionPane.showMessageDialog(this, "Incorrect username or password");
             return;
         }
 
-        // มาถึงตรงนี้แปลว่าล็อกอินผ่านแล้ว
-        // สร้างตัวจัดการแอป (StudyPlannerApp) ให้ผู้ใช้คนนี้ -> เอาไปเปิดหน้าปฏิทิน -> ปิดหน้า Login
+        // ล็อกอินผ่านแล้ว
         new CalendarGUI(new StudyPlannerApp(user)).setVisible(true);
         dispose();
     }
 
-    // ===== เมธอดช่วยไว้ไม่ให้เขียนซ้ำ =====
+    // เมธอดช่วยไว้ไม่ให้เขียนซ้ำ
 
     // สร้างป้ายข้อความหน้าตาเหมือนกัน 
     private JLabel makeLabel(String text) {
@@ -192,7 +190,7 @@ public class Login extends JFrame {
         return l;
     }
 
-    // แต่งช่องกรอก: ใส่ขอบสีเทา + เว้นระยะข้างในให้ตัวหนังสือไม่ชิดขอบ แล้วจำกัดความสูงไว้ 36
+    // แต่งช่องกรอก ใส่ขอบสีเทา + เว้นระยะข้างในให้ตัวหนังสือไม่ชิดขอบ แล้วจำกัดความสูงไว้ 36
     private JPanel field(JTextField f) {
         f.setBorder(new CompoundBorder(                  // CompoundBorder = เอาขอบสองอันมาซ้อนกัน
                 new LineBorder(new Color(170, 170, 170), 1), // ชั้นนอก: เส้นสีเทา
@@ -204,7 +202,7 @@ public class Login extends JFrame {
         return p;
     }
 
-    // เอาของชิ้นเดียวใส่กล่อง เพื่อสั่งว่าจะให้ชิดซ้าย / กลาง / ขวา
+    // เอาของชิ้นเดียวใส่กล่อง เพื่อสั่งว่าจะให้ชิดซ้าย กลาง ขวา
     private JPanel row(JComponent c, int align) {
         JPanel p = new JPanel(new FlowLayout(align, 0, 0));
         p.setOpaque(false);
@@ -217,7 +215,7 @@ public class Login extends JFrame {
     private JPanel left(JComponent c)     { return row(c, FlowLayout.LEFT); }
     private JPanel right(JComponent c)    { return row(c, FlowLayout.RIGHT); }
 
-    // ===== รูปคนในวงกลม =====
+    // รูปคนในวงกลม
     private static class AvatarIcon extends JComponent {
         AvatarIcon() { setPreferredSize(new Dimension(70, 70)); } // ขนาด 70x70
 
