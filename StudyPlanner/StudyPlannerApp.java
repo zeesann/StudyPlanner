@@ -16,7 +16,7 @@ public class StudyPlannerApp {
         ALL_DONE   // มีงาน และทุกงานเสร็จหมดแล้ว
     }
 
-    // ---------- ตัวแปรของคลาส ----------
+    // ตัวแปรของคลาส
     private final User user;                // ผู้ใช้ที่ล็อกอินอยู่
     private final StorageService storage;   // ตัวอ่าน/เขียนไฟล์ของผู้ใช้คนนี้
     private final List<Task> tasks;         // รายการงานทั้งหมดในหน่วยความจำ
@@ -33,9 +33,8 @@ public class StudyPlannerApp {
         this.tasks = storage.loadTasks();
     }
 
-    // ============================================================
+   
     //  สร้าง / แก้ไข / ลบ
-    // ============================================================
 
     /** เพิ่มงานใหม่ (เมธอดนี้ถูกเรียกจากหน้า AddSubject ตอนกดปุ่ม Save) */
     public Task addTask(String name, String description, LocalDate deadline, String status) {
@@ -44,7 +43,7 @@ public class StudyPlannerApp {
         if (deadline == null) throw new IllegalArgumentException("deadline is null");
 
         // สร้าง Task: trim() ตัดช่องว่างหัวท้าย, ถ้า description เป็น null ให้เป็นข้อความว่าง
-        // ชื่อวิชา (Subject) ตั้งเท่ากับชื่อที่กรอก
+        // ชื่อวิชาตั้งเท่ากับชื่อที่กรอก
         Task t = new Task(name.trim(), description == null ? "" : description.trim(),
                 new Subject(name.trim()), deadline);
         t.setStatus(status);   // ตั้งสถานะตามที่ผู้ใช้เลือก (ค่าเริ่มต้นของ Task คือ Todo)
@@ -84,10 +83,8 @@ public class StudyPlannerApp {
         return removed;
     }
 
-    // ============================================================
-    //  ดึงข้อมูล (Query)
-    // ============================================================
-
+    
+    //  ดึงข้อมูล 
     /** คืนงานทั้งหมดแบบ "อ่านอย่างเดียว" หน้าจอจะเพิ่ม/ลบผ่านลิสต์นี้ตรงๆ ไม่ได้ */
     public List<Task> getTasks() {
         return Collections.unmodifiableList(tasks);

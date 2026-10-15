@@ -25,14 +25,14 @@ public class Task {
         this.status = TODO;
     }
 
-    // ---------- Getter: อ่านค่า ----------
+    // Getter: อ่านค่า 
     public String getTitle()        { return title; }
     public String getDescription()  { return description; }
     public Subject getSubject()     { return subject; }
     public LocalDate getDeadline()  { return deadline; }
     public String getStatus()       { return status; }
 
-    // ---------- Setter: ตั้งค่า ----------
+    // Setter: ตั้งค่า 
     public void setTitle(String title)             { this.title = title; }
     public void setDescription(String description) { this.description = description; }
     public void setSubject(Subject subject)        { this.subject = subject; }

@@ -3,7 +3,7 @@ public class AuthService {
     // enum = ชุดค่าผลลัพธ์ที่เป็นไปได้ ใช้แทนการคืนค่าเป็นข้อความหรือตัวเลขเลขๆ
     // ทำให้หน้าจอรู้ว่าเกิดอะไรขึ้น แล้วเลือกข้อความแจ้งผู้ใช้ได้ถูกต้อง
 
-    /** ผลลัพธ์ของการสมัครสมาชิก */
+    // ผลลัพธ์ของการสมัครสมาชิก
     public enum SignUpResult {
         OK,             // สมัครสำเร็จ
         EMPTY,          // มีช่องที่ยังไม่ได้กรอก
@@ -13,7 +13,7 @@ public class AuthService {
         ERROR           // เขียนไฟล์ไม่สำเร็จ หรือเกิดข้อผิดพลาดอื่น
     }
 
-    /** ผลลัพธ์ของการรีเซ็ตรหัสผ่าน */
+    //ผลลัพธ์ของการรีเซ็ตรหัสผ่าน
     public enum ResetResult {
         OK,             // เปลี่ยนรหัสผ่านสำเร็จ
         EMPTY,          // มีช่องที่ยังไม่ได้กรอก
@@ -23,10 +23,9 @@ public class AuthService {
         ERROR           // เขียนไฟล์ไม่สำเร็จ หรือเกิดข้อผิดพลาดอื่น
     }
 
-    // ------------------------------------------------------------
+    
     //  1) เข้าสู่ระบบ
-    // ------------------------------------------------------------
-    /** คืนค่า User ถ้า username/password ถูกต้อง ถ้าไม่ถูกต้องคืน null */
+    // คืนค่า User ถ้า username/password ถูกต้อง ถ้าไม่ถูกต้องคืน null
     public User signIn(String username, String password) {
         // ถ้าเป็น null หรือว่างเปล่า ถือว่าล็อกอินไม่ผ่านทันที
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) return null;
@@ -37,29 +36,29 @@ public class AuthService {
         return UserStorage.validateLogin(username, password) ? new User(username) : null;
     }
 
-    // ------------------------------------------------------------
+    
     //  2) สมัครสมาชิก  (ตรวจทีละเงื่อนไข เจอเงื่อนไขแรกที่ไม่ผ่านก็คืนผลทันที)
-    // ------------------------------------------------------------
+    
     public SignUpResult signUp(String username, String password, String confirm) {
-        // ขั้นที่ 1: ทุกช่องต้องไม่ว่าง
+        // 1 ทุกช่องต้องไม่ว่าง
         if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) return SignUpResult.EMPTY;
 
-        // ขั้นที่ 2: รหัสผ่านกับช่องยืนยันต้องเหมือนกัน
+        // 2 รหัสผ่านกับช่องยืนยันต้องเหมือนกัน
         if (!password.equals(confirm))                                     return SignUpResult.MISMATCH;
 
-        // ขั้นที่ 3: ห้ามมีอักขระที่ทำให้รูปแบบไฟล์พัง
+        // 3 ห้ามมีอักขระที่ทำให้รูปแบบไฟล์พัง
         if (hasBadChars(username) || hasBadChars(password))                return SignUpResult.INVALID_CHARS;
 
-        // ขั้นที่ 4: ชื่อผู้ใช้ต้องยังไม่ซ้ำกับคนอื่น
+        // 4 ชื่อผู้ใช้ต้องยังไม่ซ้ำกับคนอื่น
         if (UserStorage.usernameExists(username))                          return SignUpResult.TAKEN;
 
-        // ขั้นที่ 5: ผ่านหมดแล้ว -> บันทึกลงไฟล์ ถ้าบันทึกได้ = OK ไม่ได้ = ERROR
+        //  5 ผ่านหมดแล้ว -> บันทึกลงไฟล์ ถ้าบันทึกได้ = OK ไม่ได้ = ERROR
         return UserStorage.registerUser(username, password) ? SignUpResult.OK : SignUpResult.ERROR;
     }
 
-    // ------------------------------------------------------------
+   
     //  3) รีเซ็ตรหัสผ่าน
-    // ------------------------------------------------------------
+
     public ResetResult resetPassword(String username, String newPassword, String confirm) {
         // ทุกช่องต้องไม่ว่าง
         if (username.isEmpty() || newPassword.isEmpty() || confirm.isEmpty()) return ResetResult.EMPTY;
@@ -77,9 +76,8 @@ public class AuthService {
         return UserStorage.resetPassword(username, newPassword) ? ResetResult.OK : ResetResult.ERROR;
     }
 
-    // ------------------------------------------------------------
+   
     //  เมธอดช่วยตรวจอักขระต้องห้าม
-    // ------------------------------------------------------------
     // ไฟล์ users.txt ใช้ '|' คั่นข้อมูลแต่ละช่อง และใช้ขึ้นบรรทัดใหม่คั่นแต่ละคน
     // ถ้าผู้ใช้พิมพ์อักขระเหล่านี้ลงในชื่อหรือรหัสผ่าน รูปแบบไฟล์จะเพี้ยนและอ่านกลับไม่ได้
     // จึงห้ามใช้ (private = ใช้ได้เฉพาะในคลาสนี้)

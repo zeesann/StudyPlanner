@@ -10,19 +10,19 @@ import javax.swing.*;
 
 public class AddSubject extends JFrame {
 
-    // ---------- สีและฟอนต์ ----------
+    // สีและฟอนต์
     static final Color PINK = new Color(240, 143, 179);                        // สีชมพูของธีม
     static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");  // รูปแบบวันที่ที่แสดง
     static final Font THAI_FONT = new Font("Tahoma", Font.PLAIN, 14);   // ฟอนต์ที่แสดงภาษาไทยได้
 
-    // ---------- ช่องกรอกข้อมูล ----------
+    // ช่องกรอกข้อมูล 
     JTextField nameField = new JTextField();       // ช่องชื่อวิชา
     JTextField descField = new JTextField();       // ช่องรายละเอียด
     JTextField deadlineField = new JTextField();   // ช่องแสดงวันที่ (พิมพ์เองไม่ได้ ต้องเลือกจากปฏิทิน)
     JComboBox<String> statusBox = new JComboBox<>(new String[]{Task.TODO, Task.IN_PROGRESS, Task.COMPLETE}); // ตัวเลือกสถานะ
     LocalDate deadlineDate = null;                 // วันที่ที่เลือกจริง (null = ยังไม่ได้เลือก)
 
-    // ---------- ตัวแปรอื่นๆ ----------
+    // ตัวแปรอื่นๆ
     JFrame parent;                // หน้าที่เปิดหน้านี้ขึ้นมา (To-Do หรือ Calendar)
     StudyPlannerApp app;          // ตัวที่ใช้บันทึกงาน
     Runnable onSaved;             // โค้ดที่จะสั่งให้หน้าเดิมวาดใหม่หลังบันทึกเสร็จ
@@ -124,9 +124,8 @@ public class AddSubject extends JFrame {
         add(panel);                               // ใส่แผงลงหน้าต่าง
     }
 
-    // ============================================================
+   
     //  บันทึกงาน (ทำงานเมื่อกดปุ่ม Save subject)
-    // ============================================================
     void save() {
         // ตรวจ 1: ต้องกรอกชื่อวิชา
         String name = nameField.getText().trim();
@@ -150,9 +149,8 @@ public class AddSubject extends JFrame {
         dispose();      // ปิดหน้านี้ -> windowClosed ทำงาน -> หน้าเดิมแสดงกลับมา
     }
 
-    // ============================================================
+    
     //  เปิดปฏิทินป๊อปอัป
-    // ============================================================
     void openCalendar() {
         CalendarDialog dialog = new CalendarDialog(this, deadlineDate);
         dialog.setVisible(true);                     // โค้ดจะรอตรงนี้จนกว่าป๊อปอัปจะถูกปิด
@@ -163,9 +161,8 @@ public class AddSubject extends JFrame {
         }
     }
 
-    // ============================================================
+   
     //  เมธอดช่วย: เพิ่ม "ป้ายชื่อ + ช่องกรอก" ลงฟอร์ม
-    // ============================================================
     void addField(JPanel panel, String text, JComponent field) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Tahoma", Font.BOLD, 15));
@@ -179,9 +176,8 @@ public class AddSubject extends JFrame {
         panel.add(field);
     }
 
-    // =====================================================
-    //                  ปฏิทินป๊อปอัป
-    // =====================================================
+
+    // ปฏิทินป๊อปอัป
     // คลาสย่อย (static nested class) ที่เป็นหน้าต่างเล็กๆ ให้เลือกวันที่
     static class CalendarDialog extends JDialog {
         YearMonth month;                  // เดือน/ปี ที่กำลังแสดงอยู่
@@ -220,7 +216,7 @@ public class AddSubject extends JFrame {
 
             grid.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
 
-            // ประกอบหน้าต่าง: หัวอยู่บน ตารางวันอยู่ตรงกลาง
+            // ประกอบหน้าต่าง หัวอยู่บน ตารางวันอยู่ตรงกลาง
             JPanel content = new JPanel(new BorderLayout(5, 5));
             content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             content.add(header, BorderLayout.NORTH);
@@ -240,7 +236,7 @@ public class AddSubject extends JFrame {
             monthLabel.setText(month.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH)
                     + " " + month.getYear());
 
-            // แถวหัวตาราง: ชื่อวันย่อ
+            // แถวหัวตาราง ชื่อวันย่อ
             String[] days = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
             for (String d : days) {
                 JLabel l = new JLabel(d, SwingConstants.CENTER);
@@ -249,7 +245,7 @@ public class AddSubject extends JFrame {
             }
 
             // ช่องว่างก่อนวันที่ 1 เพื่อให้วันที่ 1 ตรงกับวันในสัปดาห์ที่ถูกต้อง
-            // getValue() ของ Java: จันทร์=1 ... อาทิตย์=7 ; หาร 7 เอาเศษ ทำให้อาทิตย์=0
+            // getValue ของ Java: จันทร์=1 อาทิตย์=7 ; หาร 7 เอาเศษ ทำให้อาทิตย์=0
             int blanks = month.atDay(1).getDayOfWeek().getValue() % 7;   // Sunday = 0
             for (int i = 0; i < blanks; i++) {
                 grid.add(new JLabel(""));
