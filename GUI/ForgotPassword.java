@@ -118,6 +118,9 @@ public class ForgotPassword extends JFrame {
             case NOT_FOUND: // ไม่เจอชื่อผู้ใช้นี้ในระบบ
                 JOptionPane.showMessageDialog(this, "Username not found");
                 return;
+            case SAME: 
+                JOptionPane.showMessageDialog(this, "Password is SAME your old password");
+                return;
             case ERROR:    // บันทึกรหัสใหม่ไม่สำเร็จ 
                 JOptionPane.showMessageDialog(this, "Could not save the new password. Please try again");
                 return;

@@ -63,10 +63,17 @@ public class CalendarGUI extends JFrame {
         JLabel title = new JLabel("study planner");
         title.setFont(BOLD.deriveFont(18f));
         title.setForeground(PINK);
-            
+
+      
+
         JLabel signOut = new JLabel("sign out");
         signOut.setFont(BOLD);
         signOut.setForeground(PINK);
+
+        JLabel repassword = new JLabel("REPASSWORD");
+        signOut.setFont(BOLD);
+        repassword.setForeground(RED);
+
         
         //ขึ้นถามยืนยันว่าจะล็อคเอ้าท์มั้ย
         signOut.addMouseListener(new MouseAdapter() {
@@ -79,9 +86,22 @@ public class CalendarGUI extends JFrame {
                 }
             }
         });
+
+         repassword.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (JOptionPane.showConfirmDialog(CalendarGUI.this, "repassword ?",
+                        "Sign out", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    dispose(); //ปิดหน้าต่าง
+                    TodoList.reset();   
+                    new ForgotPassword().setVisible(true); 
+                }
+            }
+        });
  
+
         bar.add(title, BorderLayout.WEST);
         bar.add(signOut, BorderLayout.EAST);
+       bar.add(repassword, BorderLayout.NORTH); 
         return bar;
     }
  
