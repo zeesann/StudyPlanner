@@ -13,36 +13,35 @@ public class StorageService {
     // ชื่อผู้ใช้เจ้าของอ็อบเจกต์นี้ ใช้แยกว่าบรรทัดไหนเป็นของใคร
     private final String username;
 
-    /** สร้างตัวจัดเก็บสำหรับผู้ใช้หนึ่งคน */
+    // สร้างตัวจัดเก็บสำหรับผู้ใช้หนึ่งคน
     public StorageService(String username) {
         this.username = username;
     }
 
-    // ------------------------------------------------------------
+    
     //  ทำความสะอาดข้อความก่อนเขียนลงไฟล์
-    // ------------------------------------------------------------
-    // แทนที่ '|' และการขึ้นบรรทัดใหม่ด้วยช่องว่าง
+    // แทนที่ | และการขึ้นบรรทัดใหม่ด้วยช่องว่าง
     // เพราะอักขระเหล่านี้เป็นตัวคั่นของไฟล์ ถ้าหลุดเข้าไปจะทำให้อ่านกลับมาผิดช่อง
     // ถ้าค่าเป็น null ให้ถือเป็นข้อความว่าง
     private static String clean(String s) {
         return s == null ? "" : s.replace("|", " ").replace("\r", " ").replace("\n", " ");
     }
 
-    // เปิดไฟล์สำหรับ "อ่าน" แบบ UTF-8
+    // เปิดไฟล์สำหรับอ่าน แบบ UTF-8
     private static BufferedReader openReader(File file) throws IOException {
         return new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
     }
 
-    // เปิดไฟล์สำหรับ "เขียน" แบบ UTF-8 (false = เขียนทับของเดิมทั้งไฟล์ ไม่ต่อท้าย)
+    // เปิดไฟล์สำหรับเขียน แบบ UTF-8 (false = เขียนทับของเดิมทั้งไฟล์ ไม่ต่อท้าย)
     private static Writer openWriter() throws IOException {
         return new OutputStreamWriter(new FileOutputStream(FILE_NAME, false), StandardCharsets.UTF_8);
     }
 
-    // ------------------------------------------------------------
+    
     //  บันทึกงานทั้งหมดของผู้ใช้คนนี้ลงไฟล์
-    // ------------------------------------------------------------
+    
     public void saveTasks(List<Task> tasks) {
-        // ขั้นที่ 1: อ่านไฟล์เดิม แล้วเก็บ "บรรทัดของผู้ใช้คนอื่น" ไว้ก่อน
+        //  1 อ่านไฟล์เดิม แล้วเก็บ "บรรทัดของผู้ใช้คนอื่น" ไว้ก่อน
         //           (เพราะเดี๋ยวจะเขียนทับทั้งไฟล์ ถ้าไม่เก็บไว้ งานของคนอื่นจะหาย)
         List<String> others = new ArrayList<>();
         File file = new File(FILE_NAME);
@@ -50,7 +49,7 @@ public class StorageService {
             try (BufferedReader reader = openReader(file)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // split("\\|", -1) แยกบรรทัดตาม '|' ; -1 = เก็บช่องว่างท้ายบรรทัดไว้ด้วย
+                    // split("\\|", -1) แยกบรรทัดตาม | ; -1 = เก็บช่องว่างท้ายบรรทัดไว้ด้วย
                     String[] p = line.split("\\|", -1);
                     // p[0] คือ username ถ้าไม่ใช่ของเรา ให้เก็บทั้งบรรทัดไว้
                     if (p.length >= 1 && !p[0].equals(username)) others.add(line);
@@ -61,7 +60,7 @@ public class StorageService {
             }
         }
 
-        // ขั้นที่ 2: เขียนไฟล์ใหม่ = บรรทัดของคนอื่น + งานของผู้ใช้คนนี้
+        // 2 เขียนไฟล์ใหม่ = บรรทัดของคนอื่น + งานของผู้ใช้คนนี้
         try (Writer writer = openWriter()) {
             // เขียนของคนอื่นกลับลงไปตามเดิม
             for (String line : others) writer.write(line + "\n");
@@ -81,9 +80,9 @@ public class StorageService {
         // try-with-resources จะปิดไฟล์ให้เองอัตโนมัติ
     }
 
-    // ------------------------------------------------------------
+   
     //  โหลดงานของผู้ใช้คนนี้จากไฟล์
-    // ------------------------------------------------------------
+    
     public ArrayList<Task> loadTasks() {
         ArrayList<Task> tasks = new ArrayList<>();
         File file = new File(FILE_NAME);

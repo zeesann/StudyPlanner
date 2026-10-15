@@ -36,7 +36,7 @@ public class CreateAccount extends JFrame {
         setContentPane(background);
     }
 
-    // ===== สร้างการ์ดสีขาวตรงกลาง ตัวหลักของหน้าจอ =====
+    //  สร้างการ์ดสีขาวตรงกลาง ตัวหลักของหน้าจอ 
     private JPanel createCard() {
 
         // วาดการ์ดเ

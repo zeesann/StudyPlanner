@@ -4,7 +4,7 @@ import javax.swing.border.*;
 
 public class ForgotPassword extends JFrame {
 
-    // ---------- Colors and font ----------
+    // Colors and font 
     static final Color BG        = new Color(253, 244, 253);   // สีพื้นหลังด้านนอก ชมพูอ่อนมากๆ
     static final Color DARK_PINK = new Color(155, 45, 115);    // ชมพูเข้ม ใช้กับหัวข้อและ label
     static final Color PINK      = new Color(232, 110, 180);   // ชมพูสด ใช้กับตัวหนังสือรอง/ปุ่ม
@@ -18,7 +18,7 @@ public class ForgotPassword extends JFrame {
     private JPasswordField confirmField = new JPasswordField();     // ช่องยืนยันรหัสผ่านใหม่
     private AuthService auth = new AuthService();                   // ตัวจัดการเรื่องล็อกอิน/รีเซ็ตรหัส เรียกใช้
 
-    // construc: ทำงานทันทีที่ new ForgotPassword() ใช้สร้างหน้าตาทั้งหมดของหน้าต่าง
+    // constructor ทำงานทันทีที่ new ForgotPassword ใช้สร้างหน้าตาทั้งหมดของหน้าต่าง
     public ForgotPassword() {
         setTitle("Forgot Password");                 // ข้อความบนแถบหัวหน้าต่าง
         setSize(420, 650);                           // ขนาดหน้าต่าง กว้าง 420 สูง 650 พิกเซล
@@ -35,32 +35,32 @@ public class ForgotPassword extends JFrame {
                 new EmptyBorder(30, 40, 30, 40)));             // ขอบใน: เว้นช่องว่าง บน30 ซ้าย40 ล่าง30 ขวา40 (ให้เนื้อหาไม่ชิดขอบ)
         card.setPreferredSize(new Dimension(340, 500));        // ขนาดที่การ์ดอยากได้ กว้าง 340 สูง 500
 
-        // ---- Title ----
-        // row(...)  เอา component ไปใส่แถวแล้วกำหนดว่าจะชิดซ้าย/กลาง/ขวา
+        // title 
+        // row เอา component ไปใส่แถวแล้วกำหนดว่าจะชิดซ้าย/กลาง/ขวา
         card.add(row(makeLabel("RESET PASSWORD", new Font("Tahoma", Font.BOLD, 16), DARK_PINK), FlowLayout.CENTER)); // หัวข้อใหญ่ อยู่กลาง
         card.add(Box.createVerticalStrut(6));   // เว้นช่องว่างแนวตั้ง 6 พิกเซล (เหมือนกดเว้นบรรทัดนิดนึง)
         card.add(row(makeLabel("enter your username to reset", BOLD, PINK), FlowLayout.CENTER)); // คำอธิบายใต้หัวข้อ
         card.add(Box.createVerticalStrut(30));  // เว้นห่างหน่อย ก่อนเข้าส่วนกรอกข้อมูล
 
-        // ---- Username ----
+        //  Username 
         card.add(row(makeLabel("USERNAME", BOLD, DARK_PINK), FlowLayout.LEFT)); // ป้ายบอกว่าช่องนี้คือชื่อผู้ใช้ ชิดซ้าย
         card.add(Box.createVerticalStrut(6));                                   // เว้นระหว่างป้ายกับช่องกรอก
         card.add(field(usernameField));                                         // ช่องกรอกชื่อผู้ใช้ 
         card.add(Box.createVerticalStrut(20));                                  // เว้นก่อนไปช่องถัดไป
 
-        // ---- New password ----
+        // New password 
         card.add(row(makeLabel("NEW PASSWORD", BOLD, DARK_PINK), FlowLayout.LEFT)); // ป้ายรหัสผ่านใหม่
         card.add(Box.createVerticalStrut(6));
         card.add(field(newPasswordField));                                          // ช่องกรอกรหัสผ่านใหม่
         card.add(Box.createVerticalStrut(20));
 
-        // ---- Confirm new password ----
+        //  Confirm new password 
         card.add(row(makeLabel("CONFIRM NEW PASSWORD", BOLD, DARK_PINK), FlowLayout.LEFT)); // ป้ายยืนยันรหัสผ่าน
         card.add(Box.createVerticalStrut(6));
         card.add(field(confirmField));                                                       // ช่องกรอกยืนยันรหัสผ่าน (ต้องพิมพ์ให้ตรงกับช่องบน)
         card.add(Box.createVerticalStrut(25));                                               // เว้นห่างหน่อยก่อนถึงปุ่ม
 
-        // ---- Reset button ----
+        //  Reset button 
         JButton resetBtn = new JButton("Reset password");  // สร้างปุ่ม ข้อความบนปุ่มคือ "Reset password"
         resetBtn.setFont(BOLD);                            // ตั้งฟอนต์ตัวหนา
         resetBtn.setForeground(PINK);                      // สีตัวหนังสือบนปุ่ม
@@ -74,13 +74,13 @@ public class ForgotPassword extends JFrame {
         card.add(resetBtn);                                // เอาปุ่มใส่การ์ด
         card.add(Box.createVerticalStrut(20));
 
-        // ---- Divider line ----
+        // Divider line 
         JSeparator line = new JSeparator();                               // เส้นคั่นแนวนอน
         line.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));         // ให้ยาวเต็มการ์ด สูงแค่ 2 พิกเซล
         card.add(line);
         card.add(Box.createVerticalStrut(20));
 
-        // ---- Back to sign in ----
+        // Back to sign in 
         JButton back = linkButton("back to sign in", BOLD, PINK);   // ปุ่มหน้าตาเหมือนลิงก์ข้อความธรรมดา
         back.addActionListener(e -> {                               // พอกดลิงก์นี้...
             new Login().setVisible(true);                           // เปิดหน้า Login ขึ้นมา
@@ -97,7 +97,7 @@ public class ForgotPassword extends JFrame {
         setContentPane(background);                           // ตั้งให้แผ่นนี้เป็นเนื้อหาหลักของหน้าต่าง
     }
 
-    // ---------- Reset password ----------
+    // Reset password 
     private void handleReset() {
         String username = usernameField.getText().trim();                // ดึงชื่อผู้ใช้จากช่องกรอก trim() = ตัดช่องว่างหน้าหลังทิ้ง
         String newPassword = new String(newPasswordField.getPassword()); // getPassword() ได้เป็น char[] เลยต้องแปลงเป็น String ก่อนใช้

@@ -61,7 +61,7 @@ public class UserStorage {
         if (!found) return false;     // ไม่มีชื่อนี้ในระบบ ก็ไม่ต้องเขียนไฟล์อะไร
 
         try (FileWriter writer = new FileWriter(FILE_NAME, false)) { 
-            // false = โหมด "เขียนทับ" เนื้อหาเก่าหายหมด แล้วเขียนใหม่ทั้งชุด
+            // false = เขียนทับเนื้อหาเก่าหายหมด แล้วเขียนใหม่ทั้งชุด
             // ปลอดภัยเพราะเรามีข้อมูลทุกบัญชีอยู่ใน users แล้ว (รวมรหัสใหม่ด้วย)
             for (String[] u : users) {
                 writer.write(u[0] + "|" + u[1] + "\n");   // เขียนทุกบัญชีกลับลงไปทีละบรรทัด
