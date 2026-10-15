@@ -20,7 +20,9 @@ public class AuthService {
         MISMATCH,       // รหัสผ่านใหม่กับช่องยืนยันไม่ตรงกัน
         INVALID_CHARS,  // รหัสผ่านใหม่มีอักขระต้องห้าม
         NOT_FOUND,      // ไม่พบชื่อผู้ใช้นี้ในระบบ
+        SAME,
         ERROR           // เขียนไฟล์ไม่สำเร็จ หรือเกิดข้อผิดพลาดอื่น
+        
     }
 
     
@@ -71,6 +73,8 @@ public class AuthService {
 
         // ต้องมีชื่อผู้ใช้นี้อยู่จริงถึงจะเปลี่ยนรหัสได้
         if (!UserStorage.usernameExists(username))                            return ResetResult.NOT_FOUND;
+
+        if (UserStorage.passwordExists(newPassword))                            return ResetResult.SAME;
 
         // สั่งเปลี่ยนรหัสในไฟล์ ถ้าสำเร็จ = OK ไม่สำเร็จ = ERROR
         return UserStorage.resetPassword(username, newPassword) ? ResetResult.OK : ResetResult.ERROR;

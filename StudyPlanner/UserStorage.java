@@ -28,6 +28,14 @@ public class UserStorage {
         return false;   // ไม่เจอ 
     }
 
+    public static boolean passwordExists(String password) {
+        for (String[] user : loadUsers()) {
+            if ( user[1].equals(password)) return true;   // เจอชื่อซ้ำ
+        }
+        return false;   // ไม่เจอ 
+    }
+
+
     // สมัครบัญชีใหม่ สำเร็จคืน true, ถ้าชื่อซ้ำหรือบันทึกพลาดคืน false
     public static boolean registerUser(String username, String password) {
         if (usernameExists(username)) {
